@@ -612,11 +612,12 @@ let pr_ast fmt = function
 | ArgumentExt arg -> fprintf fmt "%a@\n" ArgumentExt.print_ast arg
 
 let () =
+  let usage = "Expected exactly one existing file as command line argument" in
   let () =
-    if Array.length Sys.argv <> 2 then fatal "Expected exactly one command line argument"
+    if Array.length Sys.argv <> 2 || not (Sys.file_exists Sys.argv.(1)) then fatal usage
   in
   let file = Sys.argv.(1) in
-  let output = Filename.chop_extension file ^ ".ml" in
+  let output = try Filename.chop_extension file ^ ".ml" with Invalid_argument _ -> fatal usage in
   let ast = parse_file file in
   let chan = open_out output in
   let fmt = formatter_of_out_channel chan in
