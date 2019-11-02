@@ -154,12 +154,15 @@ One can define new types with the following commands.
    Records are product types with named fields and eliminated by projection.
    Likewise they can be recursive if the `rec` flag is set.
 
-   .. cmdv:: Ltac2 Type {? @ltac2_typeparams } @ltac2_qualid ::= [ @ltac2_constructordef ]
+   Open variants are a special kind of variant types whose constructors are not
+   statically defined, but can instead be extended dynamically. A typical example
+   is the standard `exn` type. Pattern matching on open variants must always include
+   a catch-all clause. An open variant is declared with `[ .. ]` and populated afterwards.
+   Open variants are always recursive and do not admit the `rec` flag.
 
-      Open variants are a special kind of variant types whose constructors are not
-      statically defined, but can instead be extended dynamically. A typical example
-      is the standard `exn` type. Pattern matching on open variants must always include a catch-all
-      clause. They can be extended with this command.
+   .. cmdv:: Ltac2 Type {? @ltac2_typeparams } @ltac2_qualid ::= [ @ltac2_constructordef | ... | @ltac2_constructordef ]
+
+      Add constructors to a previously declared open variant.
 
 Term Syntax
 ~~~~~~~~~~~
