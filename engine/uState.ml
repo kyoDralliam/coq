@@ -48,6 +48,7 @@ module QState : sig
   val collapse : t -> t
   val pr : (QVar.t -> Pp.t) -> t -> Pp.t
   val of_set : QVar.Set.t -> t
+  val of_named : QVar.Set.t -> t
 end =
 struct
 
@@ -173,6 +174,10 @@ let add ~check_fresh ~named q m =
 let of_set qs =
   { named = QSet.empty; qmap = QMap.bind (fun _ -> None) qs; above = QSet.empty }
 
+let of_named qs = 
+  { (of_set qs) with
+    named = qs }
+
 (* XXX what about [above]? *)
 let undefined m =
   let m = QMap.filter (fun _ v -> Option.is_empty v) m.qmap in
@@ -239,10 +244,12 @@ let empty =
     initial_universes = UGraph.initial_universes;
     minim_extra = UnivMinim.empty_extra; }
 
-let make ~lbound univs =
+let make ~lbound ~qualities univs =
   { empty with
     universes = univs;
-    initial_universes = univs }
+    initial_universes = univs ;
+    sort_variables = QState.of_named qualities
+  }
 
 let is_empty uctx =
   ContextSet.is_empty uctx.local &&
@@ -1147,15 +1154,15 @@ let new_univ_variable ?loc rigid name uctx =
 
 let add_global_univ uctx u = add_universe None true uctx u
 
-let make_with_initial_binders ~lbound univs binders =
-  let uctx = make ~lbound univs in
+let make_with_initial_binders ~lbound ~qualities univs binders =
+  let uctx = make ~lbound ~qualities univs in
   List.fold_left
     (fun uctx { CAst.loc; v = id } ->
        fst (new_univ_variable ?loc univ_rigid (Some id) uctx))
     uctx binders
 
 let from_env ?(binders=[]) env =
-  make_with_initial_binders ~lbound:UGraph.Bound.Set (Environ.universes env) binders
+  make_with_initial_binders ~lbound:UGraph.Bound.Set ~qualities:(Environ.qualities env) (Environ.universes env) binders
 
 let make_nonalgebraic_variable uctx u =
   { uctx with univ_variables = UnivFlex.make_nonalgebraic_variable uctx.univ_variables u }
