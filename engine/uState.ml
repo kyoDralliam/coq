@@ -180,8 +180,8 @@ let of_named qs =
 
 (* XXX what about [above]? *)
 let undefined m =
-  let m = QMap.filter (fun _ v -> Option.is_empty v) m.qmap in
-  QMap.domain m
+  let mq = QMap.filter (fun _ v -> Option.is_empty v) m.qmap in
+  QSet.diff (QMap.domain mq) m.named
 
 let collapse_above_prop ~to_prop m =
   let map q v = match v with
