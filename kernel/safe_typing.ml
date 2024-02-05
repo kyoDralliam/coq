@@ -119,6 +119,7 @@ type compiled_library = {
   comp_name : DirPath.t;
   comp_mod : module_body;
   comp_univs : Univ.ContextSet.t;
+  comp_qualities : Sorts.QVar.Set.t;
   comp_deps : library_info array;
   comp_flags : permanent_flags;
 }
@@ -1402,9 +1403,6 @@ let start_library dir senv =
 
 let export ~output_native_objects senv dir =
   let () = check_current_library dir senv in
-  (* qualities are in the senv only during sections *)
-  (* KM: anything to fix ? *)
-  (* let () = assert (Sorts.QVar.Set.is_empty senv.env.Environ.env_qualities) in *)
   let mp = senv.modpath in
   let str = NoFunctor (List.rev senv.revstruct) in
   let mb =
@@ -1432,6 +1430,7 @@ let export ~output_native_objects senv dir =
     comp_name = dir;
     comp_mod = mb;
     comp_univs = senv.univ;
+    comp_qualities = senv.env.Environ.env_qualities ;
     comp_deps = Array.of_list comp_deps;
     comp_flags = permanent_flags
   } in
@@ -1449,6 +1448,7 @@ let import lib vmtab vodigest senv =
   let mb = lib.comp_mod in
   let env = Environ.push_context_set ~strict:true lib.comp_univs senv.env in
   let env = Environ.link_vm_library vmtab env in
+  let env = Environ.push_quality_set lib.comp_qualities env in
   let env =
     let linkinfo = Nativecode.link_info_of_dirpath lib.comp_name in
     Modops.add_linked_module mb linkinfo env
