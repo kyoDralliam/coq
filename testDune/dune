@@ -1,4 +1,4 @@
 (coq.theory
   (name myTest)
-  (stdlib no)
+  ; (stdlib no)
   (flags -boot -noinit -allow-rewrite-rules))
