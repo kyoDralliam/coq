@@ -4,12 +4,26 @@ Set Primitive Projections.
 Record Sum@{q |a b|} (A : Type@{q|a}) (B : A -> Type@{q|b}) : Type@{q | max(a,b)} :=
   pair { fst : A ; snd : B fst }.
 
-(* Inductive Id@{q|a|} {A : Type@{q|a}} (x : A) : A -> Type@{q|a} := refl : Id x x. *)
 Inductive Id@{a|} {A : Type@{a}} (x : A) : A -> Type@{a} := refl : Id x x.
 Notation "x ≡ y" := (Id x y) (at level 65).
 
 Definition eq_Id {A} {x y : A} : x = y -> x ≡ y.
 Proof. now intros ->. Qed.
+
+
+Sort left right apex.
+Definition L@{u} := Type@{left|u}.
+Definition R@{u} := Type@{right|u}.
+Definition A@{u} := Type@{apex|u}.
+
+Axiom f@{u} : L@{u} -> A@{u}.
+Axiom g@{u} : R@{u} -> A@{u}.
+
+Sort glueing.
+
+Definition G@{u} := Type@{glueing|u}.
+
+Symbol 
 
 
 Record catop := { 
