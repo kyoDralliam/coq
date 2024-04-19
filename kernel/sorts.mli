@@ -79,6 +79,11 @@ module Quality : sig
   val var : int -> t
   (** [var i] is [QVar (QVar.make_var i)] *)
 
+  val global : QGlobal.t -> t
+  (** [global i] is [QVar (QVar.make_global i)] *)
+
+  val is_var : t -> bool
+
   val var_index : t -> int option
 
   val equal : t -> t -> bool
