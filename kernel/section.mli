@@ -54,6 +54,9 @@ val push_constraints : ContextSet.t -> 'a t -> 'a t
 (** Extend the current section with a global universe context.
     Assumes that the last opened section is monomorphic. *)
 
+(* val push_local_qualities : Sorts.QVar.Set.t -> 'a t -> 'a t *)
+(** Extend the current section with a local quality context. *)
+
 val push_global : Environ.env -> poly:bool -> section_entry -> 'a t -> 'a t
 (** Push a global entry in this section. *)
 

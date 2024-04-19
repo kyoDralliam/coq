@@ -214,14 +214,22 @@ let do_sort l =
     then CErrors.user_err (Pp.str "Cannot declare global sort qualities in a module type.") 
   in
   (* let in_section = Lib.sections_are_opened () in *)
+  let in_section = Lib.sections_are_opened () in
   let l = List.map (fun {CAst.v=id} -> (id, UnivGen.new_sort_global id)) l in
-  let src = UnqualifiedQuality in
-     (* if in_section then BoundQuality else UnqualifiedQuality in *)
+  let src = if in_section then BoundQuality else UnqualifiedQuality in
   let () = input_sort_names (src, l) in
-  let qs = List.fold_left  (fun qs (_, qv) -> Sorts.QVar.(Set.add (make_global qv) qs))
-    Sorts.QVar.Set.empty l
-  in
-  Global.push_quality_set qs
+  if in_section then
+    let names = CArray.map_of_list (fun (na,_) -> Name na) l in
+    let qs = CArray.map_of_list (fun (_,sg) -> Sorts.Quality.global sg) l in
+    let ctx =
+      UVars.UContext.make (names, [||]) (UVars.Instance.of_array (qs,[||]), Constraints.empty)
+    in
+    Global.push_section_context ctx
+  else
+    let qs = List.fold_left  (fun qs (_, qv) -> Sorts.QVar.(Set.add (make_global qv) qs))
+      Sorts.QVar.Set.empty l
+    in
+    Global.push_quality_set qs
 
 let do_constraint ~poly l =
   let open Univ in

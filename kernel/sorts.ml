@@ -138,6 +138,12 @@ module Quality = struct
   type t = QVar of QVar.t | QConstant of constant
 
   let var i = QVar (QVar.make_var i)
+  let global sg = QVar (QVar.make_global sg)
+
+  let is_var x = 
+    match x with
+    | QVar _ -> true
+    | QConstant _ -> false
 
   let var_index = function
     | QVar q -> QVar.var_index q
