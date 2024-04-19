@@ -25,4 +25,4 @@ val do_universe : poly:bool -> lident list -> unit
 val do_constraint : poly:bool -> Constrexpr.univ_constraint_expr list -> unit
 
 (** Command [Sort]. *)
-val do_sort : lident list -> unit
+val do_sort : poly:bool -> lident list -> unit
