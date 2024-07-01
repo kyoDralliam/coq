@@ -449,9 +449,12 @@ let add_constraints cst senv =
 let push_quality_set qs senv =
   if Sorts.QVar.Set.is_empty qs then senv
   else
+    let sections = Option.map (Section.push_mono_qualities qs) senv.sections
+    in
     { senv with 
       env = Environ.push_quality_set qs senv.env ;
-      qualities = Sorts.QVar.Set.union qs senv.qualities
+      qualities = Sorts.QVar.Set.union qs senv.qualities ;
+      sections
     }
 
 let is_curmod_library senv =
@@ -1285,6 +1288,7 @@ let propagate_senv newdef newenv newresolver senv oldsenv =
     revstruct = newdef::oldsenv.revstruct;
     modlabels = Label.Set.add (fst newdef) oldsenv.modlabels;
     univ = senv.univ;
+    qualities = senv.qualities ;
     future_cst = senv.future_cst;
     required = senv.required;
     loads = senv.loads@oldsenv.loads;
@@ -1301,6 +1305,7 @@ let end_module l restype senv =
   let mbids = List.rev_map fst params in
   let mb = build_module_body params restype senv in
   let newenv = Environ.set_universes (Environ.universes senv.env) oldsenv.env in
+  let newenv = Environ.set_qualities (Environ.qualities senv.env) newenv in
   let newenv = if Environ.rewrite_rules_allowed senv.env then Environ.allow_rewrite_rules newenv else newenv in
   let newenv = Environ.set_vm_library (Environ.vm_library senv.env) newenv in
   let senv' = propagate_loads { senv with env = newenv } in
@@ -1512,7 +1517,7 @@ let close_section senv =
   let sections0 = get_section senv.sections in
   let env0 = senv.env in
   (* First phase: revert the declarations added in the section *)
-  let sections, entries, cstrs, revert = Section.close_section sections0 in
+  let sections, entries, cstrs, qs, revert = Section.close_section sections0 in
   (* Don't revert the delayed constraints (future_cst). If some delayed constraints
      were forced inside the section, they have been turned into global monomorphic
      that are going to be replayed. Those that are not forced are not readded
@@ -1527,6 +1532,7 @@ let close_section senv =
   in
   (* Third phase: replay the discharged section contents *)
   let senv = push_context_set ~strict:true cstrs senv in
+  let senv = push_quality_set qs senv in
   let fold entry senv =
     match entry with
   | SecDefinition kn ->

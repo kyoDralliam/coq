@@ -1153,7 +1153,7 @@ let vernac_sort ~poly l =
   if poly && not (Lib.sections_are_opened ()) then
     user_err
                  (str"Polymorphic sorts can only be declared inside sections, " ++
-                  str "use #[universe(monomorphic)] Sort instead.");
+                  str "use #[universes(polymorphic=no)] Sort instead.");
   DeclareUniv.do_sort ~poly l
 
 let vernac_constraint ~poly l =

@@ -104,6 +104,7 @@ val named_context_val : env -> named_context_val
 val set_universes : UGraph.t -> env -> env
 
 val qualities : env -> Sorts.QVar.Set.t
+val set_qualities : Sorts.QVar.Set.t -> env -> env
 
 val typing_flags    : env -> typing_flags
 val is_impredicative_set : env -> bool

@@ -152,7 +152,7 @@ val push_context_set :
 val add_constraints :
   Univ.Constraints.t -> safe_transformer0
 
-(** Adding sort qualities *)
+(** Adding global sort qualities *)
 
 val push_quality_set :
     Sorts.QVar.Set.t -> safe_transformer0

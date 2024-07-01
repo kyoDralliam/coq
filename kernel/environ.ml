@@ -332,6 +332,10 @@ let universes env = env.env_universes
 let set_universes g env =
   {env with env_universes=g}
 
+let set_qualities qs env =
+  { env with env_qualities = qs }
+
+
 let named_context env = env.env_named_context.env_named_ctx
 let named_context_val env = env.env_named_context
 let rel_context env = env.env_rel_context.env_rel_ctx
