@@ -194,7 +194,7 @@ let collapse_above_prop ~to_prop m =
       else Some (QConstant QType)
   | Some _ -> v
   in
-  { named = m.named; qmap = QMap.mapi map m.qmap; above = QSet.empty }
+  { m with qmap = QMap.mapi map m.qmap; above = QSet.empty }
 
 let collapse m =
   let map q v = match v with
