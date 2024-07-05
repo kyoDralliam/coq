@@ -62,11 +62,16 @@ type t = {
   above : QSet.t;
   (** Set of quality variables known to be either in Prop or Type.
       If q ∈ above then it must map to None in qmap. *)
+  eliminable : QElimConstraints.t ;
 }
 
 type elt = QVar.t
 
-let empty = { named = QSet.empty; qmap = QMap.empty; above = QSet.empty }
+let empty = { 
+  named = QSet.empty;
+  qmap = QMap.empty;
+  above = QSet.empty;
+  eliminable = QElimConstraints.empty }
 
 let rec repr q m = match QMap.find q m.qmap with
 | None -> QVar q
@@ -77,6 +82,14 @@ let rec repr q m = match QMap.find q m.qmap with
   QVar q
 
 let is_above_prop q m = QSet.mem q m.above
+
+let check_eliminable q1 q2 =
+  match q1, q2 with
+  | QConstant QSProp, QConstant QProp
+  | QConstant QSProp, QConstant QType 
+  | QConstant QProp, QConstant QType -> false
+  | _, _ -> true
+
 
 let set q qv m =
   let q = repr q m in
@@ -92,18 +105,38 @@ let set q qv m =
         if QSet.mem q m.above then QSet.add qv (QSet.remove q m.above)
         else m.above
       in
-      Some { named = m.named; qmap = QMap.add q (Some (QVar qv)) m.qmap; above }
+      let eliminable =
+        let subst_cstr (a,b) = 
+          let subst1 q' = if Quality.equal (QVar q) q' then (QVar qv) else q' in
+          (subst1 a, subst1 b) 
+        in
+        QElimConstraints.map subst_cstr m.eliminable
+      in
+      Some { named = m.named; qmap = QMap.add q (Some (QVar qv)) m.qmap; above ; eliminable }
   | q, (QConstant qc as qv) ->
     if qc == QSProp && QSet.mem q m.above then None
     else if QSet.mem q m.named then None
     else
-      Some { named = m.named; qmap = QMap.add q (Some qv) m.qmap; above = QSet.remove q m.above }
+      let eliminable =
+        let fold_fun (a,b) mo = 
+          Option.bind mo (fun elims -> 
+            if (Quality.equal (QVar q) a && check_eliminable qv b)
+            then Some (QElimConstraints.add (qv,b) elims)
+            else if (Quality.equal (QVar q) b && check_eliminable a  qv)
+            then Some (QElimConstraints.add (a, qv) elims)
+            else None)
+        in
+        QElimConstraints.fold fold_fun m.eliminable (Some QElimConstraints.empty)
+      in
+      Option.map
+        (fun eliminable ->  { named = m.named; qmap = QMap.add q (Some qv) m.qmap; above = QSet.remove q m.above ; eliminable })
+        eliminable
 
 let set_above_prop q m =
   let q = repr q m in
   let q = match q with QVar q -> q | QConstant _ -> assert false in
   if QSet.mem q m.named then None
-  else Some { named = m.named; qmap = m.qmap; above = QSet.add q m.above }
+  else Some { m with above = QSet.add q m.above }
 
 let unify_quality ~fail c q1 q2 local = match q1, q2 with
 | QConstant QType, QConstant QType
@@ -157,7 +190,16 @@ let union ~fail s1 s2 =
   | exception Not_found -> false
   in
   let above = QSet.filter filter @@ QSet.union s1.above s2.above in
-  let s = { named = QSet.union s1.named s2.named; qmap; above } in
+  let eliminable2 = 
+    let subst (a,b) =
+      let subst1 q = Option.default q (List.assoc_opt q extra) in
+      QElimConstraints.add (subst1 a, subst1 b)
+    in
+    QElimConstraints.fold subst s2.eliminable QElimConstraints.empty
+  in
+  let eliminable = QElimConstraints.union s1.eliminable eliminable2 in
+
+  let s = { named = QSet.union s1.named s2.named; qmap; above ; eliminable} in
   List.fold_left (fun s (q1,q2) ->
       let q1 = nf_quality s q1 and q2 = nf_quality s q2 in
       unify_quality ~fail:(fun () -> fail s q1 q2) CONV q1 q2 s)
@@ -166,12 +208,25 @@ let union ~fail s1 s2 =
 
 let add ~check_fresh ~named q m =
   if check_fresh then assert (not (QMap.mem q m.qmap));
-  { named = if named then QSet.add q m.named else m.named;
-    qmap = QMap.add q None m.qmap;
-    above = m.above }
+  { m with
+    named = if named then QSet.add q m.named else m.named;
+    qmap = QMap.add q None m.qmap }
+
+let add_elim q1 q2 m =
+  let q1 = repr q1 m in
+  let q2 = repr q2 m in
+  if Quality.equal q1 q2 then
+    Some m
+  else if check_eliminable q1 q2 then
+    Some { m with eliminable = QElimConstraints.add (q1,q2) m.eliminable}
+  else None
+
+let add_elims cstrs m = 
+  let fold_fun (q1, q2) mo = Option.bind mo (add_elim q1 q2) in
+  QElimConstraints.fold fold_fun ctsrs (Some m)
 
 let of_set qs =
-  { named = QSet.empty; qmap = QMap.bind (fun _ -> None) qs; above = QSet.empty }
+  { empty with qmap = QMap.bind (fun _ -> None) qs }
 
 (* XXX what about [above]? *)
 let undefined m =
@@ -186,14 +241,14 @@ let collapse_above_prop ~to_prop m =
       else Some (QConstant QType)
   | Some _ -> v
   in
-  { named = m.named; qmap = QMap.mapi map m.qmap; above = QSet.empty }
+  { m with qmap = QMap.mapi map m.qmap; above = QSet.empty }
 
 let collapse m =
   let map q v = match v with
   | None -> if QSet.mem q m.named then None else Some (QConstant QType)
   | Some _ -> v
   in
-  { named = m.named; qmap = QMap.mapi map m.qmap; above = QSet.empty }
+  { m with qmap = QMap.mapi map m.qmap; above = QSet.empty }
 
 let pr prqvar { qmap; above; named } =
   let open Pp in
@@ -208,6 +263,7 @@ let pr prqvar { qmap; above; named } =
     str " := " ++ q
   in
   h (prlist_with_sep fnl (fun (u, v) -> prqvar u ++ prbody u v) (QMap.bindings qmap))
+
 
 end
 
@@ -731,7 +787,7 @@ let add_constraints uctx cstrs =
   let cstrs = problem_of_constraints cstrs in
   add_universe_constraints uctx cstrs
 
-let add_quconstraints uctx (qcstrs,ucstrs) =
+let add_quconstraints uctx (qcstrs,qecstrs, ucstrs) =
   let cstrs = problem_of_constraints ucstrs in
   let cstrs = QConstraints.fold (fun (l,d,r) cstrs ->
       match d with
@@ -739,7 +795,8 @@ let add_quconstraints uctx (qcstrs,ucstrs) =
       | Leq -> UnivProblem.Set.add (QLeq (l,r)) cstrs)
       qcstrs cstrs
   in
-  add_universe_constraints uctx cstrs
+  let uctx = add_universe_constraints uctx cstrs in
+  { uctx with sort_variables = QState.add_elims qecstrs uctx.sort_variables }
 
 let check_qconstraints uctx csts =
   Sorts.QConstraints.for_all (fun (l,k,r) ->

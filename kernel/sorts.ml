@@ -199,6 +199,35 @@ module Quality = struct
     | PQConstant _, QVar _ -> None
 end
 
+module QElimConstraint = struct
+  type t = Quality.t * Quality.t
+  let equal (a,b) (a',b') = Quality.equal a a' && Quality.equal b b'
+  let compare (a,b) (a',b') = 
+    let c = Quality.compare a a' in
+    if c <> 0 then c
+    else Quality.compare b b'
+
+  let trivial (a,b) =
+    Quality.equal a Quality.qtype || Quality.equal a b
+
+  let pr prq (a,b) =
+    let open Pp in
+    hov 1 (Quality.pr prq a ++ spc() ++  str"ε" ++ spc() ++ Quality.pr prq b)
+
+  let raw_pr x = pr QVar.raw_pr x
+end
+
+module QElimConstraints = struct include CSet.Make(QElimConstraint)
+  let trivial = for_all QElimConstraint.trivial
+
+
+  let pr prq c =
+    let open Pp in
+    v 0 (prlist_with_sep spc (fun (u1,u2) ->
+      hov 0 (Quality.pr prq u1 ++ str"ε" ++ Quality.pr prq u2))
+       (elements c))
+end
+
 module QConstraint = struct
   type kind = Equal | Leq
 
@@ -255,12 +284,12 @@ let enforce_leq_quality a b csts =
 
 module QUConstraints = struct
 
-  type t = QConstraints.t * Univ.Constraints.t
+  type t = QConstraints.t * QElimConstraints.t * Univ.Constraints.t
 
-  let empty = QConstraints.empty, Univ.Constraints.empty
+  let empty = QConstraints.empty, QElimConstraints.empty, Univ.Constraints.empty
 
-  let union (qcsts,ucsts) (qcsts',ucsts') =
-    QConstraints.union qcsts qcsts', Constraints.union ucsts ucsts'
+  let union (qcsts, qecsts, ucsts) (qcsts', qecsts', ucsts') =
+    QConstraints.union qcsts qcsts', QElimConstraints.union qecsts qecsts', Constraints.union ucsts ucsts'
 end
 
 type t =

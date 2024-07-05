@@ -22,6 +22,8 @@ sig
   module List : sig
     val union : t list -> t
   end
+
+  val map : (elt -> elt) -> t -> t
 end
 
 module SetExt (M : Set.OrderedType) :
@@ -30,6 +32,7 @@ sig
   module List : sig
     val union : set list -> set
   end
+  val map : (M.t -> M.t) -> set -> set
 end =
 struct
   module S = Set.Make(M)
@@ -38,6 +41,8 @@ struct
   module List = struct
     let union = List.fold_left S.union S.empty
   end
+
+  let map f m = S.fold (fun x -> S.add (f x)) m S.empty
 end
 
 module Make(M : Set.OrderedType) =

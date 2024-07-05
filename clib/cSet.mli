@@ -25,6 +25,7 @@ sig
     val union : t list -> t
     (** Union of sets from a list *)
   end
+  val map : (elt -> elt) -> t -> t
 end
 
 module Make(M : Map.OrderedType) : ExtS
