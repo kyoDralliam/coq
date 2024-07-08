@@ -185,6 +185,13 @@ module Quality = struct
   let qprop = hcons (QConstant QProp)
   let qtype = hcons (QConstant QType)
 
+  let check_eliminable q1 q2 =
+    match q1, q2 with
+    | QConstant QSProp, QConstant QProp
+    | QConstant QSProp, QConstant QType 
+    | QConstant QProp, QConstant QType -> false
+    | _, _ -> true
+
   module Self = struct type nonrec t = t let compare = compare end
   module Set = CSet.Make(Self)
   module Map = CMap.Make(Self)
@@ -271,6 +278,10 @@ module QConstraints = struct include CSet.Make(QConstraint)
        (elements c))
 
 end
+
+let enforce_elim_quality a b csts =
+  if Quality.equal a b then csts
+  else QElimConstraints.add (a,b) csts
 
 let enforce_eq_quality a b csts =
   if Quality.equal a b then csts

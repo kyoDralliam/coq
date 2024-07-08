@@ -48,6 +48,10 @@ let check_qconstraints qcst env =
   if Sorts.QConstraints.trivial qcst then ()
   else error_unsatisfied_qconstraints env qcst
 
+let check_elim_qconstraints eqcst env =
+  if Sorts.QElimConstraints.trivial eqcst then ()
+  else error_unsatisfied_qelimconstraints env eqcst
+
 (* This should be a type (a priori without intention to be an assumption) *)
 let check_type env c t =
   match kind(Reduction.whd_all env t) with
@@ -515,11 +519,12 @@ let type_case_scrutinee env (mib, _mip) (u', largs) u pms (pctx, p) c =
   in
   (* We use l2r:true for compat with old versions which used CONV with arguments
      flipped. It is relevant for performance eg in bedrock / Kami. *)
-  let qcst, ucst = match mib.mind_variance with
+  let qcst, eqcst, ucst = match mib.mind_variance with
   | None -> UVars.enforce_eq_instances u u' Sorts.QUConstraints.empty
   | Some variance -> UVars.enforce_leq_variance_instances variance u' u Sorts.QUConstraints.empty
   in
   let () = check_qconstraints qcst env in
+  let () = check_elim_qconstraints eqcst env in
   let () = check_constraints ucst env in
   let subst = Vars.subst_of_rel_context_instance_list pctx (realargs @ [c]) in
   Vars.substl subst p

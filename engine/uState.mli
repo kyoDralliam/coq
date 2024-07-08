@@ -128,6 +128,8 @@ val add_universe_constraints : t -> UnivProblem.Set.t -> t
 
 val check_qconstraints : t -> QConstraints.t -> bool
 
+val check_qelimconstraints : t -> QElimConstraints.t -> bool
+
 val check_universe_constraints : t -> UnivProblem.Set.t -> bool
 
 val add_quconstraints : t -> QUConstraints.t -> t

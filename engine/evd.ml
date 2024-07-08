@@ -1280,8 +1280,11 @@ let check_constraints evd csts =
 let check_qconstraints evd csts =
   UState.check_qconstraints evd.universes csts
 
-let check_quconstraints evd (qcsts,ucsts) =
-  check_qconstraints evd qcsts && check_constraints evd ucsts
+let check_qelimconstraints evd csts =
+  UState.check_qelimconstraints evd.universes csts
+
+let check_quconstraints evd (qcsts,eqcsts,ucsts) =
+  check_qconstraints evd qcsts && check_qelimconstraints evd eqcsts && check_constraints evd ucsts
 
 let fix_undefined_variables evd =
   { evd with universes = UState.fix_undefined_variables evd.universes }

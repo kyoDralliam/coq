@@ -69,6 +69,8 @@ module Quality : sig
 
   val compare : t -> t -> int
 
+  val check_eliminable : t -> t -> bool
+
   val pr : (QVar.t -> Pp.t) -> t -> Pp.t
 
   val raw_pr : t -> Pp.t
@@ -139,6 +141,8 @@ module QConstraints : sig include CSig.SetS with type elt = QConstraint.t
 
   val pr : (QVar.t -> Pp.t) -> t -> Pp.t
 end
+
+val enforce_elim_quality : Quality.t -> Quality.t -> QElimConstraints.t -> QElimConstraints.t
 
 val enforce_eq_quality : Quality.t -> Quality.t -> QConstraints.t -> QConstraints.t
 

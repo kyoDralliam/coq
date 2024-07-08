@@ -212,6 +212,7 @@ let unify_relevance sigma r1 r2 =
     let sigma =
       Evd.add_quconstraints sigma
         (Sorts.QConstraints.singleton (Sorts.Quality.qsprop, Equal, QVar q),
+         Sorts.QElimConstraints.empty,
          Univ.Constraints.empty)
     in
     Some sigma
@@ -219,6 +220,7 @@ let unify_relevance sigma r1 r2 =
     let sigma =
       Evd.add_quconstraints sigma
         (Sorts.QConstraints.singleton (Sorts.Quality.qprop, Leq, QVar q),
+         Sorts.QElimConstraints.empty,
          Univ.Constraints.empty)
     in
     Some sigma
@@ -228,6 +230,7 @@ let unify_relevance sigma r1 r2 =
       let sigma =
         Evd.add_quconstraints sigma
           (Sorts.QConstraints.singleton (QVar q1, Equal, QVar q2),
+           Sorts.QElimConstraints.empty,
            Univ.Constraints.empty)
       in
       Some sigma

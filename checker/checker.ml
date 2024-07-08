@@ -289,6 +289,7 @@ let explain_exn = function
       | IllFormedRecBody _ -> str"IllFormedRecBody"
       | IllTypedRecBody _ -> str"IllTypedRecBody"
       | UnsatisfiedQConstraints _ -> str"UnsatisfiedQConstraints"
+      | UnsatisfiedQElimConstraints _ -> str"UnsatisfiedQElimConstraints"
       | UnsatisfiedConstraints _ -> str"UnsatisfiedConstraints"
       | DisallowedSProp -> str"DisallowedSProp"
       | BadBinderRelevance _ -> str"BadBinderRelevance"
