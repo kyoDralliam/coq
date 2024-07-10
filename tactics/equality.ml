@@ -335,6 +335,21 @@ let eq_elimination_ref l2r sort =
   in
   Coqlib.lib_ref_opt name
 
+let jmeq_elimination_ref l2r sort =
+  let name =
+    if l2r then
+      match sort with
+      | InProp -> "core.JMeq.ind_r"
+      | InSProp -> "core.JMeq.sind_r"
+      | InSet | InType | InQSort -> "core.JMeq.rect_r"
+    else
+      match sort with
+      | InProp -> "core.JMeq.ind"
+      | InSProp -> "core.JMeq.sind"
+      | InSet | InType | InQSort -> "core.JMeq.rect"
+  in
+  Coqlib.lib_ref_opt name
+
 (* find_elim determines which elimination principle is necessary to
    eliminate lbeq on sort_of_gl. *)
 
@@ -352,13 +367,20 @@ let find_elim lft2rgt dep cls ((_, hdcncl, _) as t) =
   if (is_eq || is_jmeq) && not dep
   then
     let sort = elimination_sort_of_clause cls gl in
+    let get_ref_opt l2r =
+      if is_eq then 
+        eq_elimination_ref l2r sort 
+      else if is_jmeq then
+        jmeq_elimination_ref l2r sort 
+      else None
+    in
     let c =
       match EConstr.kind sigma hdcncl with
       | Ind (ind_sp,u) ->
         begin match lft2rgt, cls with
         | Some true, None
         | Some false, Some _ ->
-          begin match if is_eq then eq_elimination_ref true sort else None with
+          begin match get_ref_opt true with
           | Some r -> destConstRef r
           | None ->
             let c1 = destConstRef (lookup_eliminator env ind_sp sort) in
@@ -371,7 +393,7 @@ let find_elim lft2rgt dep cls ((_, hdcncl, _) as t) =
             c1'
           end
         | _ ->
-          begin match if is_eq then eq_elimination_ref false sort else None with
+          begin match get_ref_opt false with
           | Some r -> destConstRef r
           | None -> destConstRef (lookup_eliminator env ind_sp sort)
           end
