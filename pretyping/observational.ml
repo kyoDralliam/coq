@@ -306,7 +306,7 @@ let universe_of_sort env sigma s =
   else
     let sigma, u = Evd.new_univ_level_variable Evd.univ_flexible sigma in
     let univ = Univ.Universe.make u in
-    let new_s = EConstr.ESorts.make (Sorts.mkType univ) in
+    let new_s = EConstr.ESorts.make (Sorts.make Sorts.Quality.qtype univ) in
     let sigma = Evd.set_leq_sort env sigma s new_s in
     sigma, (univ, new_s)
 
@@ -361,7 +361,7 @@ let make_obseq u ty tm1 tm2 =
 let make_obseqU ?(is_sprop = false) u tm1 tm2 =
   let u = if is_sprop then Univ.Universe.type0 else u in
   let unext = if is_sprop then Univ.Universe.type1 else Univ.Universe.super u in
-  let ty = EConstr.(mkSort (if is_sprop then ESorts.sprop else (ESorts.make (Sorts.mkType u)))) in
+  let ty = EConstr.(mkSort (if is_sprop then ESorts.sprop else (ESorts.make (Sorts.make Sorts.Quality.qtype u)))) in
   match !obseq_constant with
   | None -> user_err Pp.(str "The observational equality does not exist.")
   | Some obseq ->
@@ -372,7 +372,7 @@ let make_obseqU ?(is_sprop = false) u tm1 tm2 =
 let make_symU ?(is_sprop = false) u tm1 tm2 eq =
   let u = if is_sprop then Univ.Universe.type0 else u in
   let unext = if is_sprop then Univ.Universe.type1 else Univ.Universe.super u in
-  let ty = EConstr.(mkSort (if is_sprop then ESorts.sprop else (ESorts.make (Sorts.mkType u)))) in
+  let ty = EConstr.(mkSort (if is_sprop then ESorts.sprop else (ESorts.make (Sorts.make Sorts.Quality.qtype u)))) in
   match !sym_constant with
   | None -> user_err Pp.(str "The observational equality does not exist.")
   | Some sym ->
@@ -460,14 +460,14 @@ let telescope_equality env sigma telescope univs inst0 inst1 =
     let is_sprop = EConstr.ESorts.is_sprop sigma sort in
     let ty_ap_ty = make_obseqU ~is_sprop u ty_x ty_y in
     (* we add it to the context *)
-    let annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "h")) Sorts.Irrelevant in
+    let annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "h")) EConstr.ERelevance.irrelevant in
     let ctxt = Context.Rel.Declaration.LocalDef (annot, ap_ty, ty_ap_ty) :: ctxt in
     (* next we build the cast of x *)
     let cast_x = make_cast u (EConstr.Vars.lift 1 ty_x) (EConstr.Vars.lift 1 ty_y)
                    (EConstr.mkRel 1) (EConstr.Vars.lift 1 x) in
     (* finally we build the equality type between cast_x and y and we add it to the context *)
     let eq_x_y = make_obseq u (EConstr.Vars.lift 1 ty_y) cast_x (EConstr.Vars.lift 1 y) in
-    let eqannot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) Sorts.Irrelevant in
+    let eqannot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) EConstr.ERelevance.irrelevant in
     let ctxt = Context.Rel.Declaration.LocalAssum (eqannot, eq_x_y) :: ctxt in
     (* we update all the data to be in the new context for the recursive call *)
     (* let new_ren = Esubst.el_shft 1 (Esubst.el_liftn 2 ren) in *)
@@ -485,7 +485,7 @@ let telescope_equality env sigma telescope univs inst0 inst1 =
        let telescope, univs, inst0, inst1 = List.rev telescope, List.rev univs, List.rev inst0, List.rev inst1 in
        let eq0 = make_obseq u0 (Context.Rel.Declaration.get_type ty0) x0 y0 in
        (* let ids = Id.Set.of_list (Termops.ids_of_rel_context (rel_context env)) in *)
-       let eq0_annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) Sorts.Irrelevant in
+       let eq0_annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) EConstr.ERelevance.irrelevant in
        let init_ctxt = [ Context.Rel.Declaration.LocalAssum (eq0_annot, eq0) ] in
        let init_eq = EConstr.mkRel 1 in
        let result, _, _, _, _, _, _ =
@@ -695,7 +695,7 @@ let declare_ctor_obs_eqs ?loc ~poly env sigma ind ctor =
   let indty1 = e_exliftn ren indty in
   let indty2 = e_exliftn (Esubst.el_liftn 1 ren) indty in
   let eq_hyp = make_obseqU ind.idi_univ indty1 indty2 in
-  let eq_annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) Sorts.Irrelevant in
+  let eq_annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) EConstr.ERelevance.irrelevant in
   let hyp_ctxt = (Context.Rel.Declaration.LocalAssum (eq_annot, eq_hyp))::dup_ctxt in
 
   let eq_name = "obseq_" ^ Names.Id.to_string ctor.csi_base_name ^ "_" in
@@ -905,7 +905,7 @@ let declare_forded_match_rule ?loc ~poly env sigma uinst (ind, idi) ctor_i (norm
 
   let add_evar_in_context env sigma ctxt ty =
     let env = EConstr.push_rel_context ctxt env in
-    let relevance = Some Sorts.Relevant in
+    let relevance = Some EConstr.ERelevance.relevant in
     let src = Some (None , Evar_kinds.MatchingVar (Evar_kinds.FirstOrderPatVar (Names.Id.of_string "_"))) in
     Evarutil.new_evar ?src ?relevance env sigma ty
   in
@@ -914,9 +914,9 @@ let declare_forded_match_rule ?loc ~poly env sigma uinst (ind, idi) ctor_i (norm
   let pred_arity = Inductiveops.make_arity_signature env sigma true ind_family in
   let sigma, pred_u = Evd.new_univ_level_variable Evd.univ_rigid sigma in
   let pred_u = Univ.Universe.make pred_u in
-  let pred_sort = EConstr.ESorts.make (Sorts.mkType pred_u) in
+  let pred_sort = EConstr.ESorts.make (Sorts.make Sorts.Quality.qtype pred_u) in
   let sigma, pred_ev = add_evar_in_context env sigma pred_arity (EConstr.mkSort pred_sort) in
-  let pred = EConstr.it_mkLambda_or_LetIn pred_ev pred_arity, EConstr.EQualUniv.of_sort sigma pred_sort in
+  let pred = EConstr.it_mkLambda_or_LetIn pred_ev pred_arity, EConstr.EQualUniv.of_sort (* sigma *) pred_sort in
   (* branches *)
   let ctors = Inductiveops.get_constructors env ind_family in
   let do_branch ctor (sigma, branches, branch_evs) =
@@ -953,7 +953,7 @@ let declare_forded_match_rule ?loc ~poly env sigma uinst (ind, idi) ctor_i (norm
   (* in *)
   (* let telescope = semi_applied_ind :: telescope in *)
   let telescope =
-    let annot = Context.make_annot Names.Name.Anonymous Sorts.Relevant in
+    let annot = Context.make_annot Names.Name.Anonymous EConstr.ERelevance.relevant in
     Context.Rel.Declaration.LocalAssum (annot, pred_ev) :: telescope
   in
   let tel_univs = List.map fst idi.idi_indx_univs in
@@ -961,7 +961,7 @@ let declare_forded_match_rule ?loc ~poly env sigma uinst (ind, idi) ctor_i (norm
   let eq_tm = make_ap_ty (n_indx+1) telescope (List.rev tel_univs) forded_indx_subst indx_subst (List.rev forded_arg_subst) in
   let eq_tm = make_symU pred_u forded_indx_ty indx_ty eq_tm in
   let eq_ty = make_obseqU pred_u indx_ty forded_indx_ty in
-  let eq_annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) Sorts.Irrelevant in
+  let eq_annot = Context.make_annot (Names.Name.mk_name (Names.Id.of_string "e")) EConstr.ERelevance.irrelevant in
   let eq_ctxt = [Context.Rel.Declaration.LocalDef (eq_annot, eq_tm, eq_ty)] in
   let eq_var = EConstr.mkRel 1 in
   (* branch for the normal constructor instanciated with the arguemnts of the forded constructor *)
