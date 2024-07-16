@@ -91,7 +91,7 @@ Definition CReal_appart (x y : CReal) := sum (CRealLt x y) (CRealLt y x).
 
 Infix "<" := CRealLt : CReal_scope.
 Infix ">" := CRealGt : CReal_scope.
-Infix "#" := CReal_appart : CReal_scope.
+Infix "#/" := CReal_appart : CReal_scope.
 
 (* This Prop can be extracted as a sigma type *)
 Lemma CRealLtEpsilon : forall x y : CReal,
@@ -300,7 +300,7 @@ Proof.
     3: apply Qpower_0_lt; lra.
     2: apply Qinv_lt_0_compat; lra.
 
-  destruct (Qlt_le_dec ((1#2) * ((seq y) n + (seq x) n)) ((seq z) (Z.min n (- k - 2))))
+  destruct (Qlt_le_dec ((1#/2) * ((seq y) n + (seq x) n)) ((seq z) (Z.min n (- k - 2))))
     as [Hxyltz|Hzlexy]; [left; pose (cauchy x) as HCS|right; pose (cauchy y) as HCS].
 
   all: exists (Z.min (n)%Z (-k - 2))%Z.
@@ -514,7 +514,7 @@ Definition inject_Q (q : Q) : CReal :=
 |}.
 
 Definition inject_Z : Z -> CReal
-  := fun n => inject_Q (n # 1).
+  := fun n => inject_Q (n #/ 1).
 
 Notation "0" := (inject_Q 0) : CReal_scope.
 Notation "1" := (inject_Q 1) : CReal_scope.
@@ -528,7 +528,7 @@ Qed.
 Lemma CReal_injectQPos : forall q : Q,
     (0 < q)%Q -> CRealLt (inject_Q 0) (inject_Q q).
 Proof.
-  intros q Hq. destruct (QarchimedeanExp2_Z ((2#1) / q)) as [k Hk].
+  intros q Hq. destruct (QarchimedeanExp2_Z ((2#/1) / q)) as [k Hk].
   exists (-k)%Z; cbn.
   apply (Qmult_lt_compat_r _ _ q) in Hk.
     2: assumption.
@@ -989,7 +989,7 @@ Lemma inject_Z_plus : forall q r : Z,
     inject_Z (q + r) == inject_Z q + inject_Z r.
 Proof.
   intros q r; unfold inject_Z.
-  setoid_replace (q + r # 1)%Q with ((q#1) + (r#1))%Q.
+  setoid_replace (q + r #/ 1)%Q with ((q#/1) + (r#/1))%Q.
   - apply inject_Q_plus.
   - rewrite Qinv_plus_distr; reflexivity.
 Qed.
@@ -998,7 +998,7 @@ Lemma opp_inject_Z : forall n : Z,
     inject_Z (-n) == - inject_Z n.
 Proof.
   intros n; unfold inject_Z.
-  setoid_replace (-n # 1)%Q with (-(n#1))%Q.
+  setoid_replace (-n #/ 1)%Q with (-(n#/1))%Q.
   - rewrite opp_inject_Q; reflexivity.
   - reflexivity.
 Qed.

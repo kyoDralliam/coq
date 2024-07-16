@@ -543,7 +543,7 @@ Proof.
 Qed.
 
 Lemma CReal_mult_eq_reg_l : forall (r r1 r2 : CReal),
-    r # 0
+    r #/ 0
     -> r * r1 == r * r2
     -> r1 == r2.
 Proof.
@@ -570,7 +570,7 @@ Qed.
 
 Lemma CReal_abs_appart_zero : forall (x : CReal) (n : Z),
     (2*2^n < Qabs (seq x n))%Q
-    -> 0 # x.
+    -> 0 #/ x.
 Proof.
   intros x n Hapart.
   unfold CReal_appart.
@@ -592,22 +592,22 @@ Proof.
   (* We add 3/2: 1/2 for the average rounding of floor + 1 to center in the interval.
      This gives a margin of 1/2 in each inequality.
      Since we need margin for Qlt of 2*2^-n plus 2^-n for the real addition, we need n=-3 *)
-  remember (seq x (-3)%Z + (3#2))%Q as q eqn: Heqq.
+  remember (seq x (-3)%Z + (3#/2))%Q as q eqn: Heqq.
   pose proof (Qlt_floor q) as Hltfloor; unfold QArith_base.inject_Z in Hltfloor.
   pose proof (Qfloor_le q) as Hfloorle; unfold QArith_base.inject_Z in Hfloorle.
   exists (Qfloor q); split.
   - unfold inject_Z, inject_Q, CRealLt. rewrite CReal_red_seq.
     exists (-3)%Z.
-    setoid_replace (2 * 2 ^ (-3))%Q with (1#4)%Q by reflexivity.
+    setoid_replace (2 * 2 ^ (-3))%Q with (1#/4)%Q by reflexivity.
     subst q; rewrite <- Qinv_plus_distr in Hltfloor.
     lra.
   - unfold inject_Z, inject_Q, CReal_plus, CReal_plus_seq, CRealLt. do 3 rewrite CReal_red_seq.
     exists (-3)%Z.
-    setoid_replace (2 * 2 ^ (-3))%Q with (1#4)%Q by reflexivity.
+    setoid_replace (2 * 2 ^ (-3))%Q with (1#/4)%Q by reflexivity.
     simplify_seq_idx; rewrite Qred_correct.
     pose proof cauchy x (-3)%Z (-3)%Z (-4)%Z ltac:(lia) ltac:(lia) as Hbnddx.
     rewrite Qabs_Qlt_condition in Hbnddx.
-    setoid_replace (2 ^ (-3))%Q with (1#8)%Q in Hbnddx by reflexivity.
+    setoid_replace (2 ^ (-3))%Q with (1#/8)%Q in Hbnddx by reflexivity.
     subst q; rewrite <- Qinv_plus_distr in Hltfloor.
     lra.
 Qed.
@@ -751,7 +751,7 @@ Proof.
   abstract now rewrite Qplus_0_r, <- (Qplus_0_l (- seq x n)).
 Defined.
 
-Definition CReal_inv (x : CReal) (xnz : x # 0) : CReal
+Definition CReal_inv (x : CReal) (xnz : x #/ 0) : CReal
   := match xnz with
      | inl xNeg => - CReal_inv_pos (-x) (CReal_neg_lt_pos x xNeg)
      | inr xPos => CReal_inv_pos x xPos
@@ -760,7 +760,7 @@ Definition CReal_inv (x : CReal) (xnz : x # 0) : CReal
 Notation "/ x" := (CReal_inv x) (at level 35, right associativity) : CReal_scope.
 
 Lemma CReal_inv_0_lt_compat
-  : forall (r : CReal) (rnz : r # 0),
+  : forall (r : CReal) (rnz : r #/ 0),
     0 < r -> 0 < ((/ r) rnz).
 Proof.
   intros r Hrnz Hrpos; unfold CReal_inv; cbn.
@@ -830,7 +830,7 @@ Proof.
     lra.
 Qed.
 
-Lemma CReal_inv_l : forall (r:CReal) (rnz : r # 0),
+Lemma CReal_inv_l : forall (r:CReal) (rnz : r #/ 0),
         ((/ r) rnz) * r == 1.
 Proof.
   intros. unfold CReal_inv. destruct rnz.
@@ -839,21 +839,21 @@ Proof.
   - apply CReal_inv_l_pos.
 Qed.
 
-Lemma CReal_inv_r : forall (r:CReal) (rnz : r # 0),
+Lemma CReal_inv_r : forall (r:CReal) (rnz : r #/ 0),
     r * ((/ r) rnz) == 1.
 Proof.
   intros. rewrite CReal_mult_comm, CReal_inv_l.
   reflexivity.
 Qed.
 
-Lemma CReal_inv_1 : forall nz : 1 # 0, (/ 1) nz == 1.
+Lemma CReal_inv_1 : forall nz : 1 #/ 0, (/ 1) nz == 1.
 Proof.
   intros. rewrite <- (CReal_mult_1_l ((/1) nz)). rewrite CReal_inv_r.
   reflexivity.
 Qed.
 
 Lemma CReal_inv_mult_distr :
-  forall r1 r2 (r1nz : r1 # 0) (r2nz : r2 # 0) (rmnz : (r1*r2) # 0),
+  forall r1 r2 (r1nz : r1 #/ 0) (r2nz : r2 #/ 0) (rmnz : (r1*r2) #/ 0),
     (/ (r1 * r2)) rmnz == (/ r1) r1nz * (/ r2) r2nz.
 Proof.
   intros. apply (CReal_mult_eq_reg_l r1).
@@ -866,7 +866,7 @@ Proof.
       reflexivity.
 Qed.
 
-Lemma Rinv_eq_compat : forall x y (rxnz : x # 0) (rynz : y # 0),
+Lemma Rinv_eq_compat : forall x y (rxnz : x #/ 0) (rynz : y #/ 0),
     x == y
     -> (/ x) rxnz == (/ y) rynz.
 Proof.
@@ -892,7 +892,7 @@ Proof.
   - now rewrite 2!(CReal_mult_comm r).
 Qed.
 
-Lemma CReal_mult_eq_reg_r : forall r r1 r2, r1 * r == r2 * r -> r # 0 -> r1 == r2.
+Lemma CReal_mult_eq_reg_r : forall r r1 r2, r1 * r == r2 * r -> r #/ 0 -> r1 == r2.
 Proof.
   intros. apply (CReal_mult_eq_reg_l r).
   - exact H0.
@@ -909,9 +909,9 @@ Proof.
   intros. rewrite H. reflexivity.
 Qed.
 
-(* In particular x * y == 1 implies that 0 # x, 0 # y and
+(* In particular x * y == 1 implies that 0 #/ x, 0 #/ y and
    that x and y are inverses of each other. *)
-Lemma CReal_mult_pos_appart_zero : forall x y : CReal, 0 < x * y -> 0 # x.
+Lemma CReal_mult_pos_appart_zero : forall x y : CReal, 0 < x * y -> 0 #/ x.
 Proof.
   intros x y H0ltxy.
   unfold CRealLt, CReal_mult, CReal_mult_seq, CReal_mult_scale in H0ltxy;
@@ -983,12 +983,12 @@ Proof.
   - apply H.
 Qed.
 
-Lemma CReal_invQ : forall (b : positive) (pos : Qlt 0 (Z.pos b # 1)),
-    CReal_inv (inject_Q (Z.pos b # 1)) (inr (CReal_injectQPos (Z.pos b # 1) pos))
-    == inject_Q (1 # b).
+Lemma CReal_invQ : forall (b : positive) (pos : Qlt 0 (Z.pos b #/ 1)),
+    CReal_inv (inject_Q (Z.pos b #/ 1)) (inr (CReal_injectQPos (Z.pos b #/ 1) pos))
+    == inject_Q (1 #/ b).
 Proof.
   intros.
-  apply (CReal_mult_eq_reg_l (inject_Q (Z.pos b # 1))).
+  apply (CReal_mult_eq_reg_l (inject_Q (Z.pos b #/ 1))).
   - right. apply CReal_injectQPos. exact pos.
   - rewrite CReal_mult_comm, CReal_inv_l.
     apply CRealEq_diff. intro n. simpl.
@@ -1002,14 +1002,14 @@ Proof.
   (* Locate a and b at the index given by a<b,
      and pick the middle rational number. *)
   intros [p pmaj].
-  exists ((seq a p + seq b p) * (1#2))%Q.
+  exists ((seq a p + seq b p) * (1#/2))%Q.
   split.
   - apply (CReal_le_lt_trans _ _ _ (inject_Q_compare a p)). apply inject_Q_lt.
     lra.
   - apply (CReal_plus_lt_reg_l (-b)).
     rewrite CReal_plus_opp_l.
     apply (CReal_plus_lt_reg_r
-             (-inject_Q ((seq a p + seq b p) * (1 # 2)))).
+             (-inject_Q ((seq a p + seq b p) * (1 #/ 2)))).
     rewrite CReal_plus_assoc, CReal_plus_opp_r, CReal_plus_0_r, CReal_plus_0_l.
     rewrite <- opp_inject_Q.
     apply (CReal_le_lt_trans _ _ _ (inject_Q_compare (-b) p)). apply inject_Q_lt.
@@ -1031,13 +1031,13 @@ Proof.
 Qed.
 
 Definition Rup_nat (x : CReal)
-  : { n : nat & x < inject_Q (Z.of_nat n #1) }.
+  : { n : nat & x < inject_Q (Z.of_nat n #/1) }.
 Proof.
   intros. destruct (CRealArchimedean x) as [p maj].
   destruct p.
   - exists O. apply maj.
   - exists (Pos.to_nat p). rewrite positive_nat_Z. apply maj.
-  - exists O. apply (CReal_lt_trans _ (inject_Q (Z.neg p # 1))).
+  - exists O. apply (CReal_lt_trans _ (inject_Q (Z.neg p #/ 1))).
     + apply maj.
     + apply inject_Q_lt. reflexivity.
 Qed.
@@ -1057,29 +1057,29 @@ Proof.
       contradiction.
     + exact epsPos.
   - (* n > 0 *)
-    assert (0 < inject_Q (Z.of_nat (S n) #1)) as nPos.
+    assert (0 < inject_Q (Z.of_nat (S n) #/1)) as nPos.
     { apply inject_Q_lt. unfold Qlt, Qnum, Qden.
       do 2 rewrite Z.mul_1_r. apply Z2Nat.inj_lt.
       - discriminate.
       - apply Zle_0_nat.
       - rewrite Nat2Z.id. apply -> Nat.succ_le_mono; apply Nat.le_0_l. }
-    assert (b * (/ inject_Q (Z.of_nat (S n) #1)) (inr nPos) < -(a*b)).
-    { apply (CReal_mult_lt_reg_r (inject_Q (Z.of_nat (S n) #1))). { apply nPos. }
+    assert (b * (/ inject_Q (Z.of_nat (S n) #/1)) (inr nPos) < -(a*b)).
+    { apply (CReal_mult_lt_reg_r (inject_Q (Z.of_nat (S n) #/1))). { apply nPos. }
       rewrite CReal_mult_assoc, CReal_inv_l, CReal_mult_1_r.
       apply (CReal_mult_lt_compat_r (-(a*b))) in maj.
       - rewrite CReal_mult_assoc, CReal_inv_l, CReal_mult_1_r in maj.
         rewrite CReal_mult_comm. apply maj.
       - apply epsPos. }
     pose proof (CReal_mult_le_compat_l_half
-                  (a + (/ inject_Q (Z.of_nat (S n) #1)) (inr nPos)) 0 b).
-    assert (0 + 0 < a + (/ inject_Q (Z.of_nat (S n) #1)) (inr nPos)).
+                  (a + (/ inject_Q (Z.of_nat (S n) #/1)) (inr nPos)) 0 b).
+    assert (0 + 0 < a + (/ inject_Q (Z.of_nat (S n) #/1)) (inr nPos)).
     { apply CReal_plus_le_lt_compat. { apply H. } apply CReal_inv_0_lt_compat. apply nPos. }
     rewrite CReal_plus_0_l in H3. specialize (H2 H3 H0).
     clear H3. rewrite CReal_mult_0_r in H2.
     apply H2. clear H2. rewrite CReal_mult_plus_distr_r.
     apply (CReal_plus_lt_compat_l (a*b)) in H1.
     rewrite CReal_plus_opp_r in H1.
-    rewrite (CReal_mult_comm ((/ inject_Q (Z.of_nat (S n) #1)) (inr nPos))).
+    rewrite (CReal_mult_comm ((/ inject_Q (Z.of_nat (S n) #/1)) (inr nPos))).
     apply H1.
 Qed.
 

@@ -160,7 +160,7 @@ Structure ConstructiveReals : Type :=
        { q : Q  &  prod (CRlt x (CR_of_Q q))
                         (CRlt (CR_of_Q q) y) };
     CR_archimedean : forall x : CRcarrier,
-        { n : positive  &  CRlt x (CR_of_Q (Z.pos n # 1)) };
+        { n : positive  &  CRlt x (CR_of_Q (Z.pos n #/ 1)) };
 
     CRminus (x y : CRcarrier) : CRcarrier
     := CRplus x (CRopp y);
@@ -183,12 +183,12 @@ Structure ConstructiveReals : Type :=
     := forall p:positive,
         { n : nat  |  forall i:nat, le n i
                            -> CRle (CRabs (CRminus (un i) l))
-                                  (CR_of_Q (1#p)) };
+                                  (CR_of_Q (1#/p)) };
     CR_cauchy (un : nat -> CRcarrier) : Set
     := forall p : positive,
         { n : nat  |  forall i j:nat, le n i -> le n j
                              -> CRle (CRabs (CRminus (un i) (un j)))
-                                    (CR_of_Q (1#p)) };
+                                    (CR_of_Q (1#/p)) };
 
     (* For the Cauchy reals, this algorithm consists in building
        a Cauchy sequence of rationals un : nat -> Q that has
@@ -1040,10 +1040,10 @@ Proof.
   { rewrite <- CRopp_0. apply CRopp_gt_lt_contravar. exact abs. }
   destruct (CR_archimedean R (b * ((/ -(a*b)) (inr epsPos))))
     as [n maj].
-  assert (0 < CR_of_Q R (Z.pos n #1)) as nPos.
+  assert (0 < CR_of_Q R (Z.pos n #/1)) as nPos.
   { apply CR_of_Q_lt. reflexivity. }
-  assert (b * (/ CR_of_Q R (Z.pos n #1)) (inr nPos) < -(a*b)).
-  { apply (CRmult_lt_reg_r (CR_of_Q R (Z.pos n #1))).
+  assert (b * (/ CR_of_Q R (Z.pos n #/1)) (inr nPos) < -(a*b)).
+  { apply (CRmult_lt_reg_r (CR_of_Q R (Z.pos n #/1))).
     - apply nPos.
     - rewrite <- (Rmul_assoc (CRisRing R)), CRinv_l, CRmult_1_r.
       apply (CRmult_lt_compat_r (-(a*b))) in maj.
@@ -1051,8 +1051,8 @@ Proof.
         rewrite CRmult_comm. apply maj.
       + apply epsPos. }
   pose proof (CRmult_le_compat_l_half
-                (a + (/ CR_of_Q R (Z.pos n #1)) (inr nPos)) 0 b).
-  assert (0 + 0 < a + (/ CR_of_Q R (Z.pos n #1)) (inr nPos)).
+                (a + (/ CR_of_Q R (Z.pos n #/1)) (inr nPos)) 0 b).
+  assert (0 + 0 < a + (/ CR_of_Q R (Z.pos n #/1)) (inr nPos)).
   { apply CRplus_le_lt_compat.
     - apply H.
     - apply CRinv_0_lt_compat. apply nPos. }
@@ -1061,7 +1061,7 @@ Proof.
   apply H2. clear H2. rewrite (Rdistr_l (CRisRing R)).
   apply (CRplus_lt_compat_l R (a*b)) in H1.
   rewrite CRplus_opp_r in H1.
-  rewrite (CRmult_comm ((/ CR_of_Q R (Z.pos n # 1)) (inr nPos))).
+  rewrite (CRmult_comm ((/ CR_of_Q R (Z.pos n #/ 1)) (inr nPos))).
   apply H1.
 Qed.
 
@@ -1103,7 +1103,7 @@ Proof.
     + exact H2.
 Qed.
 
-(* In particular x * y == 1 implies that 0 # x, 0 # y and
+(* In particular x * y == 1 implies that 0 #/ x, 0 #/ y and
    that x and y are inverses of each other. *)
 Lemma CRmult_pos_appart_zero
   : forall {R : ConstructiveReals} (x y : CRcarrier R),
@@ -1156,17 +1156,17 @@ Proof.
 Qed.
 
 Definition CRup_nat {R : ConstructiveReals} (x : CRcarrier R)
-  : { n : nat  &  x < CR_of_Q R (Z.of_nat n #1) }.
+  : { n : nat  &  x < CR_of_Q R (Z.of_nat n #/1) }.
 Proof.
   destruct (CR_archimedean R x). exists (Pos.to_nat x0).
   rewrite positive_nat_Z. exact c.
 Qed.
 
 Definition CRfloor {R : ConstructiveReals} (a : CRcarrier R)
-  : { p : Z  &  prod (CR_of_Q R (p#1) < a)
-                     (a < CR_of_Q R (p#1) + CR_of_Q R 2) }.
+  : { p : Z  &  prod (CR_of_Q R (p#/1) < a)
+                     (a < CR_of_Q R (p#/1) + CR_of_Q R 2) }.
 Proof.
-  destruct (CR_Q_dense R (a - CR_of_Q R (1#2)) a) as [q qmaj].
+  destruct (CR_Q_dense R (a - CR_of_Q R (1#/2)) a) as [q qmaj].
   - apply (CRlt_le_trans _ (a-0)).
     + apply CRplus_lt_compat_l.
       apply CRopp_gt_lt_contravar.
@@ -1175,8 +1175,8 @@ Proof.
   - exists (Qfloor q). destruct qmaj. split.
     + apply (CRle_lt_trans _ (CR_of_Q R q)). 2: exact c0.
       apply CR_of_Q_le. apply Qfloor_le.
-    + apply (CRlt_le_trans _ (CR_of_Q R q + CR_of_Q R (1#2))).
-      * apply (CRplus_lt_compat_r (CR_of_Q R (1 # 2))) in c.
+    + apply (CRlt_le_trans _ (CR_of_Q R q + CR_of_Q R (1#/2))).
+      * apply (CRplus_lt_compat_r (CR_of_Q R (1 #/ 2))) in c.
         unfold CRminus in c. rewrite CRplus_assoc, CRplus_opp_l, CRplus_0_r in c. exact c.
       * rewrite (CR_of_Q_plus R 1 1), <- CRplus_assoc, <- (CR_of_Q_plus R _ 1).
         apply CRplus_le_compat.

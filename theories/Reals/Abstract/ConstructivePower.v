@@ -134,7 +134,7 @@ Proof.
 Qed.
 
 Lemma GeoCvZero : forall {R : ConstructiveReals},
-    CR_cv R (fun n:nat => CRpow (CR_of_Q R (1#2)) n) 0.
+    CR_cv R (fun n:nat => CRpow (CR_of_Q R (1#/2)) n) 0.
 Proof.
   intro R. assert (forall n:nat, INR n < CRpow (CR_of_Q R 2) n).
   { induction n.
@@ -142,7 +142,7 @@ Proof.
       apply CRzero_lt_one.
     - unfold INR. fold (1+n)%nat.
       rewrite Nat2Z.inj_add.
-      rewrite (CR_of_Q_morph R _ ((Z.of_nat 1 # 1) + (Z.of_nat n #1))).
+      rewrite (CR_of_Q_morph R _ ((Z.of_nat 1 #/ 1) + (Z.of_nat n #/1))).
       2: symmetry; apply Qinv_plus_distr.
       rewrite CR_of_Q_plus.
       replace (CRpow (CR_of_Q R 2) (1 + n))
@@ -156,58 +156,58 @@ Proof.
   rewrite CRabs_right.
   2: apply CRpow_ge_zero; apply CR_of_Q_le; discriminate.
   apply CRlt_asym.
-  apply (CRmult_lt_reg_l (CR_of_Q R (Z.pos p # 1))).
+  apply (CRmult_lt_reg_l (CR_of_Q R (Z.pos p #/ 1))).
   - apply CR_of_Q_lt. reflexivity.
   - rewrite <- CR_of_Q_mult.
-    rewrite (CR_of_Q_morph R ((Z.pos p # 1) * (1 # p)) 1).
+    rewrite (CR_of_Q_morph R ((Z.pos p #/ 1) * (1 #/ p)) 1).
     2: unfold Qmult, Qeq, Qnum, Qden; ring_simplify; reflexivity.
     apply (CRmult_lt_reg_r (CRpow (CR_of_Q R 2) i)).
     + apply CRpow_gt_zero.
       apply CR_of_Q_lt. reflexivity.
     + rewrite CRmult_assoc. rewrite CRpow_mult.
-      rewrite (CRpow_proper (CR_of_Q R (1 # 2) * CR_of_Q R 2) 1), CRpow_one.
+      rewrite (CRpow_proper (CR_of_Q R (1 #/ 2) * CR_of_Q R 2) 1), CRpow_one.
       * rewrite CRmult_1_r, CRmult_1_l.
         apply (CRle_lt_trans _ (INR i)). 2: exact (H i). clear H.
         apply CR_of_Q_le. unfold Qle,Qnum,Qden.
         do 2 rewrite Z.mul_1_r.
         rewrite <- positive_nat_Z. apply Nat2Z.inj_le, H0.
-      * rewrite <- CR_of_Q_mult. setoid_replace ((1#2)*2)%Q with 1%Q.
+      * rewrite <- CR_of_Q_mult. setoid_replace ((1#/2)*2)%Q with 1%Q.
         -- reflexivity.
         -- reflexivity.
 Qed.
 
 Lemma GeoFiniteSum : forall {R : ConstructiveReals} (n:nat),
-    CRsum (CRpow (CR_of_Q R (1#2))) n == CR_of_Q R 2 - CRpow (CR_of_Q R (1#2)) n.
+    CRsum (CRpow (CR_of_Q R (1#/2))) n == CR_of_Q R 2 - CRpow (CR_of_Q R (1#/2)) n.
 Proof.
   induction n.
   - unfold CRsum, CRpow. simpl (1%ConstructiveReals).
     unfold CRminus. rewrite (CR_of_Q_plus R 1 1).
     rewrite CRplus_assoc.
     rewrite CRplus_opp_r, CRplus_0_r. reflexivity.
-  - setoid_replace (CRsum (CRpow (CR_of_Q R (1 # 2))) (S n))
-      with (CRsum (CRpow (CR_of_Q R (1 # 2))) n + CRpow (CR_of_Q R (1 # 2)) (S n)).
+  - setoid_replace (CRsum (CRpow (CR_of_Q R (1 #/ 2))) (S n))
+      with (CRsum (CRpow (CR_of_Q R (1 #/ 2))) n + CRpow (CR_of_Q R (1 #/ 2)) (S n)).
     2: reflexivity.
     rewrite IHn. clear IHn. unfold CRminus.
     rewrite CRplus_assoc. apply CRplus_morph.
     + reflexivity.
     + apply (CRplus_eq_reg_l
-               (CRpow (CR_of_Q R (1 # 2)) n + CRpow (CR_of_Q R (1 # 2)) (S n))).
-      rewrite (CRplus_assoc _ _ (-CRpow (CR_of_Q R (1 # 2)) (S n))),
+               (CRpow (CR_of_Q R (1 #/ 2)) n + CRpow (CR_of_Q R (1 #/ 2)) (S n))).
+      rewrite (CRplus_assoc _ _ (-CRpow (CR_of_Q R (1 #/ 2)) (S n))),
         CRplus_opp_r, CRplus_0_r.
-      rewrite (CRplus_comm (CRpow (CR_of_Q R (1 # 2)) n)), CRplus_assoc.
-      rewrite <- (CRplus_assoc (CRpow (CR_of_Q R (1 # 2)) n)), CRplus_opp_r,
+      rewrite (CRplus_comm (CRpow (CR_of_Q R (1 #/ 2)) n)), CRplus_assoc.
+      rewrite <- (CRplus_assoc (CRpow (CR_of_Q R (1 #/ 2)) n)), CRplus_opp_r,
         CRplus_0_l, <- CR_double.
-      setoid_replace (CRpow (CR_of_Q R (1 # 2)) (S n))
-        with (CR_of_Q R (1 # 2) * CRpow (CR_of_Q R (1 # 2)) n).
+      setoid_replace (CRpow (CR_of_Q R (1 #/ 2)) (S n))
+        with (CR_of_Q R (1 #/ 2) * CRpow (CR_of_Q R (1 #/ 2)) n).
       2: reflexivity.
       rewrite <- CRmult_assoc, <- CR_of_Q_mult.
-      setoid_replace (2 * (1 # 2))%Q with 1%Q.
+      setoid_replace (2 * (1 #/ 2))%Q with 1%Q.
       * apply CRmult_1_l.
       * reflexivity.
 Qed.
 
 Lemma GeoHalfBelowTwo : forall {R : ConstructiveReals} (n:nat),
-    CRsum (CRpow (CR_of_Q R (1#2))) n < CR_of_Q R 2.
+    CRsum (CRpow (CR_of_Q R (1#/2))) n < CR_of_Q R 2.
 Proof.
   intros. rewrite <- (CRplus_0_r (CR_of_Q R 2)), GeoFiniteSum.
   apply CRplus_lt_compat_l. rewrite <- CRopp_0.
@@ -216,10 +216,10 @@ Proof.
 Qed.
 
 Lemma GeoHalfTwo : forall {R : ConstructiveReals},
-    series_cv (fun n => CRpow (CR_of_Q R (1#2)) n) (CR_of_Q R 2).
+    series_cv (fun n => CRpow (CR_of_Q R (1#/2)) n) (CR_of_Q R 2).
 Proof.
   intro R.
-  apply (CR_cv_eq _ (fun n => CR_of_Q R 2 - CRpow (CR_of_Q R (1 # 2)) n)).
+  apply (CR_cv_eq _ (fun n => CR_of_Q R 2 - CRpow (CR_of_Q R (1 #/ 2)) n)).
   - intro n. rewrite GeoFiniteSum. reflexivity.
   - assert (forall n:nat, INR n < CRpow (CR_of_Q R 2) n).
     { induction n.
@@ -228,7 +228,7 @@ Proof.
       - apply (CRlt_le_trans _ (CRpow (CR_of_Q R 2) n + 1)).
         + unfold INR.
           rewrite Nat2Z.inj_succ, <- Z.add_1_l.
-          rewrite (CR_of_Q_morph R _ (1 + (Z.of_nat n #1))).
+          rewrite (CR_of_Q_morph R _ (1 + (Z.of_nat n #/1))).
           2: symmetry; apply Qinv_plus_distr. rewrite CR_of_Q_plus.
           rewrite CRplus_comm.
           apply CRplus_lt_compat_r, IHn.
@@ -239,8 +239,8 @@ Proof.
             -- apply CRpow_ge_one. apply CR_of_Q_le. discriminate.
           * rewrite <- CR_double. reflexivity. }
     intros n. exists (Pos.to_nat n). intros.
-    setoid_replace (CR_of_Q R 2 - CRpow (CR_of_Q R (1 # 2)) i - CR_of_Q R 2)
-      with (- CRpow (CR_of_Q R (1 # 2)) i).
+    setoid_replace (CR_of_Q R 2 - CRpow (CR_of_Q R (1 #/ 2)) i - CR_of_Q R 2)
+      with (- CRpow (CR_of_Q R (1 #/ 2)) i).
     + rewrite CRabs_opp. rewrite CRabs_right.
       * assert (0 < CR_of_Q R 2).
         { apply CR_of_Q_lt. reflexivity. }
@@ -249,11 +249,11 @@ Proof.
            apply (CRmult_lt_reg_l (CRpow (CR_of_Q R 2) i)).
            ++ apply CRpow_gt_zero, H1.
            ++ rewrite CRinv_r.
-              apply (CRmult_lt_reg_r (CR_of_Q R (Z.pos n#1))).
+              apply (CRmult_lt_reg_r (CR_of_Q R (Z.pos n#/1))).
               ** apply CR_of_Q_lt. reflexivity.
               ** rewrite CRmult_1_l, CRmult_assoc.
                  rewrite <- CR_of_Q_mult.
-                 rewrite (CR_of_Q_morph R ((1 # n) * (Z.pos n # 1)) 1). 2: reflexivity.
+                 rewrite (CR_of_Q_morph R ((1 #/ n) * (Z.pos n #/ 1)) 1). 2: reflexivity.
                  rewrite CRmult_1_r. apply (CRle_lt_trans _ (INR i)).
                  2: apply H. apply CR_of_Q_le.
                  unfold Qle, Qnum, Qden. do 2 rewrite Z.mul_1_r. destruct i.
@@ -264,7 +264,7 @@ Proof.
         -- apply (CRmult_eq_reg_l (CR_of_Q R 2)).
            ++ right. exact H1.
            ++ rewrite CRinv_r. rewrite <- CR_of_Q_mult.
-              setoid_replace (2 * (1 # 2))%Q with 1%Q.
+              setoid_replace (2 * (1 #/ 2))%Q with 1%Q.
               ** reflexivity.
               ** reflexivity.
       * apply CRlt_asym, CRpow_gt_zero.

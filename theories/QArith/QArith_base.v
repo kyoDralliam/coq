@@ -35,7 +35,7 @@ Ltac simpl_mult := rewrite ?Pos2Z.inj_mul.
 
 (** [a#b] denotes the fraction [a] over [b]. *)
 
-Notation "a # b" := (Qmake a b) (at level 55, no associativity) : Q_scope.
+Notation "a #/ b" := (Qmake a b) (at level 55, no associativity) : Q_scope.
 
 Definition inject_Z (x : Z) := Qmake x 1.
 Arguments inject_Z x%_Z.
@@ -69,7 +69,7 @@ Register Qlt as rat.Q.Qlt.
 *)
 
 Lemma Qden_cancel : forall (a b : Z) (p : positive),
-  (a#p)==(b#p) -> a=b.
+  (a#/p)==(b#/p) -> a=b.
 Proof.
   intros a b p.
   unfold Qeq.
@@ -77,7 +77,7 @@ Proof.
 Qed.
 
 Lemma Qnum_cancel : forall (a b : positive) (z : Z),
-  z<>0%Z -> (z#a)==(z#b) -> a=b.
+  z<>0%Z -> (z#/a)==(z#/b) -> a=b.
 Proof.
   intros a b z Hz_ne_0.
   unfold Qeq.
@@ -244,19 +244,19 @@ Hint Resolve Qnot_eq_sym : qarith.
    in the straightforward way: *)
 
 Definition Qplus (x y : Q) :=
-  (Qnum x * QDen y + Qnum y * QDen x) # (Qden x * Qden y).
+  (Qnum x * QDen y + Qnum y * QDen x) #/ (Qden x * Qden y).
 
-Definition Qmult (x y : Q) := (Qnum x * Qnum y) # (Qden x * Qden y).
+Definition Qmult (x y : Q) := (Qnum x * Qnum y) #/ (Qden x * Qden y).
 
-Definition Qopp (x : Q) := (- Qnum x) # (Qden x).
+Definition Qopp (x : Q) := (- Qnum x) #/ (Qden x).
 
 Definition Qminus (x y : Q) := Qplus x (Qopp y).
 
 Definition Qinv (x : Q) :=
   match Qnum x with
-  | Z0 => 0#1
-  | Zpos p => (QDen x)#p
-  | Zneg p => (Zneg (Qden x))#p
+  | Z0 => 0#/1
+  | Zpos p => (QDen x)#/p
+  | Zneg p => (Zneg (Qden x))#/p
   end.
 
 Definition Qdiv (x y : Q) := Qmult x (Qinv y).
@@ -457,7 +457,7 @@ Number Notation Q of_number to_number (via IQ
 
 (** A light notation for [Zpos] *)
 
-Lemma Qmake_Qdiv a b : a#b==inject_Z a/inject_Z (Zpos b).
+Lemma Qmake_Qdiv a b : a#/b==inject_Z a/inject_Z (Zpos b).
 Proof.
 unfold Qeq. simpl. ring.
 Qed.
@@ -760,14 +760,14 @@ Proof.
 Qed.
 
 Lemma Qinv_pos: forall (a b : positive),
-  / (Z.pos b # a) == Z.pos a # b.
+  / (Z.pos b #/ a) == Z.pos a #/ b.
 Proof.
   intros a b.
   reflexivity.
 Qed.
 
 Lemma Qinv_neg: forall (a b : positive),
-  / (Z.neg b # a) == Z.neg a # b.
+  / (Z.neg b #/ a) == Z.neg a #/ b.
 Proof.
   intros a b.
   reflexivity.
@@ -790,12 +790,12 @@ Proof.
   apply Qdiv_mult_l; auto.
 Qed.
 
-Lemma Qinv_plus_distr : forall a b c, ((a # c) + (b # c) == (a+b) # c)%Q.
+Lemma Qinv_plus_distr : forall a b c, ((a #/ c) + (b #/ c) == (a+b) #/ c)%Q.
 Proof.
   intros. unfold Qeq. simpl. rewrite Pos2Z.inj_mul. ring.
 Qed.
 
-Lemma Qinv_minus_distr : forall a b c, (a # c) + - (b # c) == (a-b) # c.
+Lemma Qinv_minus_distr : forall a b c, (a #/ c) + - (b #/ c) == (a-b) #/ c.
 Proof.
   intros. unfold Qeq. simpl. rewrite Pos2Z.inj_mul. ring.
 Qed.
@@ -824,7 +824,7 @@ Qed.
 (** ** Removal/introduction of common factor in both numerator and denominator. *)
 
 Lemma Qreduce_l : forall (a : Z) (b z : positive),
-  (Zpos z)*a # z*b == a#b.
+  (Zpos z)*a #/ z*b == a#/b.
 Proof.
   intros a b z.
   unfold Qeq, Qnum, Qden.
@@ -833,7 +833,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_r : forall (a : Z) (b z : positive),
-  a*(Zpos z) # b*z == a#b.
+  a*(Zpos z) #/ b*z == a#/b.
 Proof.
   intros a b z.
   unfold Qeq, Qnum, Qden.
@@ -842,7 +842,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_num_l : forall (a b : positive),
-  Z.pos a # a * b == (1 # b).
+  Z.pos a #/ a * b == (1 #/ b).
 Proof.
   intros a b.
   unfold Qeq, Qnum, Qden.
@@ -851,7 +851,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_num_r : forall (a b : positive),
-  Z.pos b # a * b == (1 # a).
+  Z.pos b #/ a * b == (1 #/ a).
 Proof.
   intros a b.
   unfold Qeq, Qnum, Qden.
@@ -860,7 +860,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_den_l : forall (a : positive) (b : Z),
-  Z.pos a * b # a == (b # 1).
+  Z.pos a * b #/ a == (b #/ 1).
 Proof.
   intros a b.
   unfold Qeq, Qnum, Qden.
@@ -868,7 +868,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_den_r : forall (a : Z) (b : positive),
-  a * Z.pos b # b == (a # 1).
+  a * Z.pos b #/ b == (a #/ 1).
 Proof.
   intros a b.
   unfold Qeq, Qnum, Qden.
@@ -876,7 +876,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_den_inject_Z_l : forall (a : positive) (b : Z),
-  (Z.pos a * b # a == inject_Z b)%Q.
+  (Z.pos a * b #/ a == inject_Z b)%Q.
 Proof.
   intros a b.
   unfold Qeq, Qnum, Qden, inject_Z.
@@ -884,7 +884,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_den_inject_Z_r : forall (a : Z) (b : positive),
-  a * Z.pos b # b == inject_Z a.
+  a * Z.pos b #/ b == inject_Z a.
 Proof.
   intros a b.
   unfold Qeq, Qnum, Qden, inject_Z.
@@ -892,7 +892,7 @@ Proof.
 Qed.
 
 Lemma Qreduce_zero: forall (d : positive),
-  (0#d == 0)%Q.
+  (0#/d == 0)%Q.
 Proof.
   intros d.
   unfold Qeq, Qnum, Qden; reflexivity.
@@ -903,14 +903,14 @@ Qed.
 (** (or to be more precise multiplication with a rational of the form z/1 or 1/p) *)
 
 Lemma Qmult_inject_Z_l : forall (a : Z) (b : positive) (z : Z),
-  (inject_Z z) * (a#b) == z*a#b.
+  (inject_Z z) * (a#/b) == z*a#/b.
 Proof.
   intros a b z.
   unfold Qeq. cbn. ring.
 Qed.
 
 Lemma Qmult_inject_Z_r : forall (a : Z) (b : positive) (z : Z),
-  (a#b) * inject_Z z == a*z#b.
+  (a#/b) * inject_Z z == a*z#/b.
 Proof.
   intros a b z.
   unfold Qeq. cbn.
@@ -918,14 +918,14 @@ Proof.
   ring.
 Qed.
 
-Lemma Qmult_frac_l : forall (a:Z) (b c:positive), (a # (b * c)) == (1#b) * (a#c).
+Lemma Qmult_frac_l : forall (a:Z) (b c:positive), (a #/ (b * c)) == (1#/b) * (a#/c).
 Proof.
   intros a b c.
   unfold Qeq, Qnum, Qden; cbn.
   destruct a; reflexivity.
 Qed.
 
-Lemma Qmult_frac_r : forall (a:Z) (b c:positive), (a # (b * c)) == (a#b) * (1#c).
+Lemma Qmult_frac_r : forall (a:Z) (b c:positive), (a #/ (b * c)) == (a#/b) * (1#/c).
 Proof.
   intros a b c.
   unfold Qeq, Qnum, Qden; cbn.
@@ -1085,7 +1085,7 @@ Proof.
   exact (Z_lt_le_dec (Qnum x * QDen y) (Qnum y * QDen x)).
 Defined.
 
-Lemma Qarchimedean : forall q : Q, { p : positive | q < Z.pos p # 1 }.
+Lemma Qarchimedean : forall q : Q, { p : positive | q < Z.pos p #/ 1 }.
 Proof.
   intros q. destruct q as [a b]. destruct a as [|p|p].
   - exists xH. reflexivity.

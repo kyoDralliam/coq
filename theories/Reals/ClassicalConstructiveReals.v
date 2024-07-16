@@ -222,7 +222,7 @@ Proof.
   intros. rewrite mult_IQR. apply Req_constr_refl.
 Qed.
 
-Lemma Rabove_pos : forall x : R, {n : positive & x < IQR (Z.pos n # 1)}.
+Lemma Rabove_pos : forall x : R, {n : positive & x < IQR (Z.pos n #/ 1)}.
 Proof.
   intros. destruct (Rup_nat (Rrepr x)) as [n nmaj].
   exists (Pos.of_nat n). unfold IQR. rewrite Rlt_def, Rquot2.
@@ -274,11 +274,11 @@ Lemma Rcomplete : forall xn : nat -> R,
   (forall p : positive,
    {n : nat |
    forall i j : nat,
-   (n <= i)%nat -> (n <= j)%nat -> IQR (1 # p) < Rabst (CReal_abs (Rrepr (xn i + - xn j))) -> False}) ->
+   (n <= i)%nat -> (n <= j)%nat -> IQR (1 #/ p) < Rabst (CReal_abs (Rrepr (xn i + - xn j))) -> False}) ->
   {l : R &
   forall p : positive,
   {n : nat |
-  forall i : nat, (n <= i)%nat -> IQR (1 # p) < Rabst (CReal_abs (Rrepr (xn i + - l))) -> False}}.
+  forall i : nat, (n <= i)%nat -> IQR (1 #/ p) < Rabst (CReal_abs (Rrepr (xn i + - l))) -> False}}.
 Proof.
   intros. destruct (Rcauchy_complete (fun n => Rrepr (xn n))) as [l llim].
   - intro p. specialize (H p) as [n nmaj]. exists n. intros.

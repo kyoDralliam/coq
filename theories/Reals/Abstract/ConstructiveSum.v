@@ -55,7 +55,7 @@ Proof.
 Qed.
 
 Definition INR {R : ConstructiveReals} (n : nat) : CRcarrier R
-  := CR_of_Q R (Z.of_nat n # 1).
+  := CR_of_Q R (Z.of_nat n #/ 1).
 
 Lemma sum_const : forall {R : ConstructiveReals} (a : CRcarrier R) (n : nat),
     CRsum (fun _ => a) n == a * INR (S n).
@@ -345,7 +345,7 @@ Proof.
       * setoid_replace (CRsum vn (Init.Nat.max i j) - CRsum vn (Init.Nat.min i j))
           with (CRsum vn (Init.Nat.max i j) - s - (CRsum vn (Init.Nat.min i j) - s)).
         -- apply (CRle_trans _ _ _ (CRabs_triang _ _)).
-           setoid_replace (1#n)%Q with ((1#2*n) + (1#2*n))%Q.
+           setoid_replace (1#/n)%Q with ((1#/2*n) + (1#/2*n))%Q.
            ++ rewrite CR_of_Q_plus.
               apply CRplus_le_compat.
               ** apply maj. apply (Nat.le_trans _ i). { assumption. } apply Nat.le_max_l.
@@ -672,7 +672,7 @@ Proof.
   induction n.
   - apply CRmorph_rat.
   - simpl. unfold INR.
-    rewrite (CRmorph_proper f _ (1 + CR_of_Q R1 (Z.of_nat n # 1))).
+    rewrite (CRmorph_proper f _ (1 + CR_of_Q R1 (Z.of_nat n #/ 1))).
     + rewrite CRmorph_plus. unfold INR in IHn.
       rewrite IHn. rewrite CRmorph_one, <- CR_of_Q_plus.
       apply CR_of_Q_morph. rewrite Qinv_plus_distr.

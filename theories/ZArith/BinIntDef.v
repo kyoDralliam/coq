@@ -44,21 +44,21 @@ Definition two := 2.
 Definition double x :=
   match x with
     | 0 => 0
-    | pos p => pos p~0
-    | neg p => neg p~0
+    | pos p => pos p~.0
+    | neg p => neg p~.0
   end.
 
 Definition succ_double x :=
   match x with
     | 0 => 1
-    | pos p => pos p~1
+    | pos p => pos p~.1
     | neg p => neg (Pos.pred_double p)
   end.
 
 Definition pred_double x :=
   match x with
     | 0 => neg 1
-    | neg p => neg p~1
+    | neg p => neg p~.1
     | pos p => pos (Pos.pred_double p)
   end.
 
@@ -66,14 +66,14 @@ Definition pred_double x :=
 
 Fixpoint pos_sub (x y:positive) {struct y} : Z :=
   match x, y with
-    | p~1, q~1 => double (pos_sub p q)
-    | p~1, q~0 => succ_double (pos_sub p q)
-    | p~1, 1 => pos p~0
-    | p~0, q~1 => pred_double (pos_sub p q)
-    | p~0, q~0 => double (pos_sub p q)
-    | p~0, 1 => pos (Pos.pred_double p)
-    | 1, q~1 => neg q~0
-    | 1, q~0 => neg (Pos.pred_double q)
+    | p~.1, q~.1 => double (pos_sub p q)
+    | p~.1, q~.0 => succ_double (pos_sub p q)
+    | p~.1, 1 => pos p~.0
+    | p~.0, q~.1 => pred_double (pos_sub p q)
+    | p~.0, q~.0 => double (pos_sub p q)
+    | p~.0, 1 => pos (Pos.pred_double p)
+    | 1, q~.1 => neg q~.0
+    | 1, q~.0 => neg (Pos.pred_double q)
     | 1, 1 => Z0
   end%positive.
 
@@ -533,8 +533,8 @@ Definition quot2 (z:Z) :=
 
 Definition log2 z :=
   match z with
-    | pos (p~1) => pos (Pos.size p)
-    | pos (p~0) => pos (Pos.size p)
+    | pos (p~.1) => pos (Pos.size p)
+    | pos (p~.0) => pos (Pos.size p)
     | _ => 0
   end.
 

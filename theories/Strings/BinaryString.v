@@ -24,17 +24,17 @@ Definition ascii_to_digit (ch : ascii) : option N
 
 Fixpoint pos_bin_app (p q:positive) : positive :=
   match q with
-  | q~0 => (pos_bin_app p q)~0
-  | q~1 => (pos_bin_app p q)~1
-  | 1 => p~1
+  | q~.0 => (pos_bin_app p q)~.0
+  | q~.1 => (pos_bin_app p q)~.1
+  | 1 => p~.1
   end.
 
 Module Raw.
   Fixpoint of_pos (p : positive) (rest : string) : string
     := match p with
        | 1 => String "1" rest
-       | p'~0 => of_pos p' (String "0" rest)
-       | p'~1 => of_pos p' (String "1" rest)
+       | p'~.0 => of_pos p' (String "0" rest)
+       | p'~.1 => of_pos p' (String "1" rest)
        end.
 
   Fixpoint to_N (s : string) (rest : N)

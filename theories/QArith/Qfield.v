@@ -111,13 +111,13 @@ Defined.
 End Ex4.
 
 Section Ex5.
-Let ex5 : 1+1 == 2#1.
+Let ex5 : 1+1 == 2#/1.
   ring.
 Defined.
 End Ex5.
 
 Section Ex6.
-Let ex6 : (1#1)+(1#1) == 2#1.
+Let ex6 : (1#/1)+(1#/1) == 2#/1.
   ring.
 Defined.
 End Ex6.

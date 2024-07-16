@@ -641,7 +641,7 @@ Proof.
  { intros. now apply Pos.iter_swap_gen. }
  destruct n as [|[p|p|]|]; intros Hn; split; try easy; unfold log2;
   simpl succ; rewrite ?Pos.add_1_r, <- Pow.
- - change (2^Pos.size p <= Pos.succ (p~0))%positive.
+ - change (2^Pos.size p <= Pos.succ (p~.0))%positive.
    apply Pos.lt_le_incl, Pos.lt_succ_r, Pos.size_le.
  - apply Pos.size_gt.
  - apply Pos.size_le.
@@ -694,17 +694,17 @@ Lemma pos_div_eucl_eq a b : 0 < b ->
 Proof.
  intros Hb.
  induction a as [a IHa|a IHa|]; unfold pos_div_eucl; fold pos_div_eucl.
- - (* ~1 *)
+ - (* ~.1 *)
    destruct pos_div_eucl as (q,r).
-   change (pos a~1) with (2*(pos a)+1).
+   change (pos a~.1) with (2*(pos a)+1).
    rewrite IHa, mul_add_distr_l, mul_assoc.
    destruct ltb.
    + now rewrite add_assoc.
    + rewrite mul_add_distr_r, mul_1_l, <- !add_assoc. f_equal.
      unfold sub. now rewrite (add_comm _ (-b)), add_assoc, add_opp_diag_r.
- - (* ~0 *)
+ - (* ~.0 *)
    destruct pos_div_eucl as (q,r).
-   change (pos a~0) with (2*pos a).
+   change (pos a~.0) with (2*pos a).
    rewrite IHa, mul_add_distr_l, mul_assoc.
    destruct ltb.
    + trivial.
@@ -753,7 +753,7 @@ Qed.
 
 Lemma pos_div_eucl_bound a b : 0<b -> 0 <= snd (pos_div_eucl a b) < b.
 Proof.
-  assert (AUX : forall m p, m < pos (p~0) -> m - pos p < pos p). {
+  assert (AUX : forall m p, m < pos (p~.0) -> m - pos p < pos p). {
     intros m p. unfold lt.
     rewrite (compare_sub m), (compare_sub _ (pos _)). unfold sub.
     rewrite <- add_assoc. simpl opp; simpl (neg _ + _).
@@ -762,7 +762,7 @@ Proof.
   intros Hb.
   destruct b as [|b|b]; discriminate Hb || clear Hb.
   induction a as [a IHa|a IHa|]; unfold pos_div_eucl; fold pos_div_eucl.
-  - (* ~1 *)
+  - (* ~.1 *)
     destruct pos_div_eucl as (q,r).
     simpl in IHa; destruct IHa as (Hr,Hr').
     case ltb_spec; intros H; unfold snd; split.
@@ -773,7 +773,7 @@ Proof.
     + apply AUX. rewrite <- succ_double_spec.
       destruct r; try easy. unfold lt in *; simpl in *.
       now rewrite Pos.compare_xI_xO, Hr'.
-  - (* ~0 *)
+  - (* ~.0 *)
     destruct pos_div_eucl as (q,r).
     simpl in IHa; destruct IHa as (Hr,Hr').
     case ltb_spec; intros H; unfold snd.
@@ -1403,10 +1403,10 @@ Proof. easy. Qed.
 Lemma inj_1 : Z.pos 1 = 1.
 Proof. reflexivity. Qed.
 
-Lemma inj_xO p : Z.pos p~0 = 2 * Z.pos p.
+Lemma inj_xO p : Z.pos p~.0 = 2 * Z.pos p.
 Proof. reflexivity. Qed.
 
-Lemma inj_xI p : Z.pos p~1 = 2 * Z.pos p + 1.
+Lemma inj_xI p : Z.pos p~.1 = 2 * Z.pos p + 1.
 Proof. reflexivity. Qed.
 
 Lemma inj_succ p : Z.pos (Pos.succ p) = Z.succ (Z.pos p).
@@ -1530,16 +1530,16 @@ Proof. easy. Qed.
 Lemma pos_lt_pos p q : (p < q)%positive -> Zpos p < Zpos q.
 Proof. easy. Qed.
 
-Lemma neg_xO p : Z.neg p~0 = 2 * Z.neg p.
+Lemma neg_xO p : Z.neg p~.0 = 2 * Z.neg p.
 Proof. reflexivity. Qed.
 
-Lemma neg_xI p : Z.neg p~1 = 2 * Z.neg p - 1.
+Lemma neg_xI p : Z.neg p~.1 = 2 * Z.neg p - 1.
 Proof. reflexivity. Qed.
 
-Lemma pos_xO p : Z.pos p~0 = 2 * Z.pos p.
+Lemma pos_xO p : Z.pos p~.0 = 2 * Z.pos p.
 Proof. reflexivity. Qed.
 
-Lemma pos_xI p : Z.pos p~1 = 2 * Z.pos p + 1.
+Lemma pos_xI p : Z.pos p~.1 = 2 * Z.pos p + 1.
 Proof. reflexivity. Qed.
 
 Lemma opp_neg p : - Z.neg p = Z.pos p.
@@ -1600,11 +1600,11 @@ Lemma inj_1 : Z.to_pos 1 = 1%positive.
 Proof. reflexivity. Qed.
 
 Lemma inj_double x : 0 < x ->
- Z.to_pos (Z.double x) = (Z.to_pos x)~0%positive.
+ Z.to_pos (Z.double x) = (Z.to_pos x)~.0%positive.
 Proof. now destruct x. Qed.
 
 Lemma inj_succ_double x : 0 < x ->
- Z.to_pos (Z.succ_double x) = (Z.to_pos x)~1%positive.
+ Z.to_pos (Z.succ_double x) = (Z.to_pos x)~.1%positive.
 Proof. now destruct x. Qed.
 
 Lemma inj_succ x : 0 < x -> Z.to_pos (Z.succ x) = Pos.succ (Z.to_pos x).

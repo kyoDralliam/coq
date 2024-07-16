@@ -69,7 +69,7 @@ Proof.
   intros. rewrite RbaseSymbolsImpl.Rmult_def. rewrite Rquot2. reflexivity.
 Qed.
 
-Lemma Rrepr_inv : forall (x:R) (xnz : Rrepr x # 0),
+Lemma Rrepr_inv : forall (x:R) (xnz : Rrepr x #/ 0),
     Rrepr (/ x) == (/ Rrepr x) xnz.
 Proof.
   intros. rewrite RinvImpl.Rinv_def. destruct (Req_appart_dec x R0).
@@ -98,7 +98,7 @@ Proof.
 Qed.
 
 Lemma Rrepr_appart : forall x y:R,
-    (x <> y)%R -> Rrepr x # Rrepr y.
+    (x <> y)%R -> Rrepr x #/ Rrepr y.
 Proof.
   intros. destruct (total_order_T x y).
   - destruct s.
@@ -110,7 +110,7 @@ Proof.
 Qed.
 
 Lemma Rappart_repr : forall x y:R,
-    Rrepr x # Rrepr y -> (x <> y)%R.
+    Rrepr x #/ Rrepr y -> (x <> y)%R.
 Proof.
   intros x y [H|H] abs.
   - destruct abs. exact (CRealLt_asym (Rrepr x) (Rrepr x) H H).
@@ -310,10 +310,10 @@ Proof.
 Qed.
 
 Lemma Rrepr_IPR2 : forall n : positive,
-    CRealEq (Rrepr (IPR_2 n)) (inject_Z (Z.pos (n~0))).
+    CRealEq (Rrepr (IPR_2 n)) (inject_Z (Z.pos (n~.0))).
 Proof.
   induction n.
-  - simpl. replace (Z.pos n~1~0) with ((Z.pos n~0 + 1) + (Z.pos n~0 + 1))%Z.
+  - simpl. replace (Z.pos n~.1~.0) with ((Z.pos n~.0 + 1) + (Z.pos n~.0 + 1))%Z.
     + rewrite RbaseSymbolsImpl.R1_def, Rrepr_mult, inject_Z_plus, inject_Z_plus.
       rewrite Rrepr_plus, Rrepr_plus, <- IHn.
       rewrite Rquot2, CReal_mult_plus_distr_r, CReal_mult_1_l.
@@ -324,7 +324,7 @@ Proof.
     + repeat rewrite <- Pos2Z.inj_add. apply f_equal.
       rewrite Pos.add_diag. apply f_equal.
       rewrite Pos.add_1_r. reflexivity.
-  - simpl. replace (Z.pos n~0~0) with ((Z.pos n~0) + (Z.pos n~0))%Z.
+  - simpl. replace (Z.pos n~.0~.0) with ((Z.pos n~.0) + (Z.pos n~.0))%Z.
     + rewrite RbaseSymbolsImpl.R1_def, Rrepr_mult, inject_Z_plus.
       rewrite Rrepr_plus, <- IHn.
       rewrite Rquot2, CReal_mult_plus_distr_r, CReal_mult_1_l. reflexivity.
@@ -341,7 +341,7 @@ Lemma Rrepr_IPR : forall n : positive,
 Proof.
   intro n. destruct n.
   - unfold IPR. rewrite Rrepr_plus.
-    replace (n~1)%positive with (n~0 + 1)%positive.
+    replace (n~.1)%positive with (n~.0 + 1)%positive.
     + rewrite Pos2Z.inj_add, inject_Z_plus, <- Rrepr_IPR2, CReal_plus_comm.
       rewrite RbaseSymbolsImpl.R1_def, Rquot2. reflexivity.
     + rewrite Pos.add_1_r. reflexivity.

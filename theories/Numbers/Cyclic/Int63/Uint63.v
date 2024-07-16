@@ -1658,7 +1658,7 @@ Proof.
     }
     rewrite add_spec, lsl_spec, ih, to_Z_1; clear ih.
     rewrite Z.pow_pos_fold, Zpos_P_of_succ_nat.
-    change (Zpos p~1) with (2 ^ 1 * Zpos p + 1)%Z.
+    change (Zpos p~.1) with (2 ^ 1 * Zpos p + 1)%Z.
     rewrite Zmod_distr by lia.
     rewrite Zpower_Zsucc by auto with zarith.
     rewrite Zplus_mod_idemp_l.
@@ -1677,7 +1677,7 @@ Proof.
     subst a; lia.
   - simpl. rewrite lsl_spec, ih, to_Z_1, Zmod_small.
     + rewrite Z.pow_pos_fold, Zpos_P_of_succ_nat, Zpower_Zsucc by lia.
-      change (Zpos p~0) with (2 ^ 1 * Zpos p)%Z.
+      change (Zpos p~.0) with (2 ^ 1 * Zpos p)%Z.
       rewrite Z.mul_mod_distr_l; auto with zarith.
     + set (a := Z.of_nat n).
       set (b := Zpos p).

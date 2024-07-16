@@ -53,8 +53,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
     | Node l o r =>
         match i with
         | 1 => o
-        | i~0 => mem i l
-        | i~1 => mem i r
+        | i~.0 => mem i l
+        | i~.1 => mem i r
         end
     end.
 
@@ -63,14 +63,14 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
     | Leaf =>
         match i with
         | 1 => Node Leaf true Leaf
-        | i~0 => Node (add i Leaf) false Leaf
-        | i~1 => Node Leaf false (add i Leaf)
+        | i~.0 => Node (add i Leaf) false Leaf
+        | i~.1 => Node Leaf false (add i Leaf)
         end
     | Node l o r =>
         match i with
         | 1 => Node l true r
-        | i~0 => Node (add i l) o r
-        | i~1 => Node l o (add i r)
+        | i~.0 => Node (add i l) o r
+        | i~.1 => Node l o (add i r)
         end
     end.
 
@@ -90,8 +90,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       | Node l o r =>
         match i with
           | 1 => node l false r
-          | i~0 => node (remove i l) o r
-          | i~1 => node l o (remove i r)
+          | i~.0 => node (remove i l) o r
+          | i~.1 => node l o (remove i r)
         end
     end.
 
@@ -150,8 +150,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
   Fixpoint rev_append (y x : elt) : elt :=
     match y with
       | 1 => x
-      | y~1 => rev_append y x~1
-      | y~0 => rev_append y x~0
+      | y~.1 => rev_append y x~.1
+      | y~.0 => rev_append y x~.0
     end.
   Infix "@" := rev_append (at level 60).
   Definition rev x := x@1.
@@ -171,9 +171,9 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       match m with
         | Leaf => v
         | Node l true r =>
-          xfold r (f (rev i) (xfold l v i~0)) i~1
+          xfold r (f (rev i) (xfold l v i~.0)) i~.1
         | Node l false r =>
-          xfold r (xfold l v i~0) i~1
+          xfold r (xfold l v i~.0) i~.1
       end.
     Definition fold m i := xfold m i 1.
 
@@ -187,21 +187,21 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       match m with
         | Leaf => true
         | Node l o r =>
-          (negb o ||| f (rev i)) &&& xforall r i~1 &&& xforall l i~0
+          (negb o ||| f (rev i)) &&& xforall r i~.1 &&& xforall l i~.0
       end.
     Definition for_all m := xforall m 1.
 
     Fixpoint xexists (m : t) (i : elt) :=
       match m with
         | Leaf => false
-        | Node l o r => (o &&& f (rev i)) ||| xexists r i~1 ||| xexists l i~0
+        | Node l o r => (o &&& f (rev i)) ||| xexists r i~.1 ||| xexists l i~.0
       end.
     Definition exists_ m := xexists m 1.
 
     Fixpoint xfilter (m : t) (i : elt) : t :=
       match m with
         | Leaf => Leaf
-        | Node l o r => node (xfilter l i~0) (o &&& f (rev i)) (xfilter r i~1)
+        | Node l o r => node (xfilter l i~.0) (o &&& f (rev i)) (xfilter r i~.1)
       end.
     Definition filter m := xfilter m 1.
 
@@ -209,8 +209,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       match m with
         | Leaf => (Leaf,Leaf)
         | Node l o r =>
-          let (lt,lf) := xpartition l i~0 in
-          let (rt,rf) := xpartition r i~1 in
+          let (lt,lf) := xpartition l i~.0 in
+          let (rt,rf) := xpartition r i~.1 in
              if o then
                let fi := f (rev i) in
                  (node lt fi rt, node lf (negb fi) rf)
@@ -226,8 +226,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
   Fixpoint xelements (m : t) (i : elt) (a: list elt) :=
     match m with
       | Leaf => a
-      | Node l false r => xelements l i~0 (xelements r i~1 a)
-      | Node l true r => xelements l i~0 (rev i :: xelements r i~1 a)
+      | Node l false r => xelements l i~.0 (xelements r i~.1 a)
+      | Node l true r => xelements l i~.0 (rev i :: xelements r i~.1 a)
     end.
 
   Definition elements (m : t) := xelements m 1 nil.
@@ -253,7 +253,7 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       | Node l o r => if o then Some 1 else
         match choose l with
           | None => omap xI (choose r)
-          | Some i => Some i~0
+          | Some i => Some i~.0
         end
     end.
 
@@ -263,7 +263,7 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       | Node l o r =>
         match min_elt l with
           | None => if o then Some 1 else omap xI (min_elt r)
-          | Some i => Some i~0
+          | Some i => Some i~.0
         end
     end.
 
@@ -273,7 +273,7 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       | Node l o r =>
         match max_elt r with
           | None => if o then Some 1 else omap xO (max_elt l)
-          | Some i => Some i~1
+          | Some i => Some i~.1
         end
     end.
 
@@ -373,8 +373,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       + intro H. split.
         * split.
           -- reflexivity.
-          -- intro a. apply (H a~0).
-        * intro a. apply (H a~1).
+          -- intro a. apply (H a~.0).
+        * intro a. apply (H a~.1).
       + intros H [a|a|]; apply H || intro; discriminate.
   Qed.
 
@@ -409,8 +409,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
         * split.
           -- split.
              ++ reflexivity.
-             ++ unfold Empty. intros a H1. apply (@empty_1 (a~0)). apply H. assumption.
-          -- unfold Empty. intros a H1. apply (@empty_1 (a~1)). apply H. assumption.
+             ++ unfold Empty. intros a H1. apply (@empty_1 (a~.0)). apply H. assumption.
+          -- unfold Empty. intros a H1. apply (@empty_1 (a~.1)). apply H. assumption.
         * destruct H as [[_ Hl] Hr].
           intros [i|i|] Hi.
           -- elim (Hr i Hi).
@@ -424,8 +424,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
           -- split.
              ++ destruct o'; trivial.
                 specialize (H 1). unfold In in H. simpl in H. apply H. reflexivity.
-             ++ intros i Hi. apply (H i~0). apply Hi.
-          -- intros i Hi. apply (H i~1). apply Hi.
+             ++ intros i Hi. apply (H i~.0). apply Hi.
+          -- intros i Hi. apply (H i~.1). apply Hi.
         * destruct H as [[Ho' Hl] Hr]. rewrite Ho'.
           intros i Hi. destruct i.
           -- apply (Hr i). assumption.
@@ -435,8 +435,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
         * split.
           -- split.
              ++ reflexivity.
-             ++ intros i Hi. apply (H i~0). apply Hi.
-          -- intros i Hi. apply (H i~1). apply Hi.
+             ++ intros i Hi. apply (H i~.0). apply Hi.
+          -- intros i Hi. apply (H i~.1). apply Hi.
         * intros i Hi. destruct i; destruct H as [[H Hl] Hr].
           -- apply (Hr i). assumption.
           -- apply (Hl i). assumption.
@@ -877,8 +877,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       split.
       + intros [[Hi|[x Hr]]|[x Hl]].
         * exists 1. exact Hi.
-        * exists x~1. exact Hr.
-        * exists x~0. exact Hl.
+        * exists x~.1. exact Hr.
+        * exists x~.0. exact Hl.
       + intros [[x|x|] H]; eauto.
   Qed.
 
@@ -930,8 +930,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
     - intros j acc y. case o.
       + rewrite IHl. rewrite InA_cons. rewrite IHr. clear IHl IHr. split.
         * intros [[H|[H|[x [-> H]]]]|[x [-> H]]]; eauto.
-          -- right. exists x~1. auto.
-          -- right. exists x~0. auto.
+          -- right. exists x~.1. auto.
+          -- right. exists x~.0. auto.
         * intros [H|[x [-> H]]].
           -- eauto.
           -- destruct x.
@@ -942,8 +942,8 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
       + rewrite IHl, IHr. clear IHl IHr. split.
         * intros [[H|[x [-> H]]]|[x [-> H]]].
           -- eauto.
-          -- right. exists x~1. auto.
-          -- right. exists x~0. auto.
+          -- right. exists x~.1. auto.
+          -- right. exists x~.0. auto.
         * intros [H|[x [-> H]]].
           -- eauto.
           -- destruct x.
@@ -984,10 +984,10 @@ Module PositiveSet <: S with Module E:=PositiveOrderedTypeBits.
         * apply IHr.
           -- apply Hacc.
           -- intros x y Hx Hy. apply Hsacc; assumption.
-        * case_eq (xelements r j~1 acc).
+        * case_eq (xelements r j~.1 acc).
           -- constructor.
           -- intros z q H. constructor.
-             assert (H': InL z (xelements r j~1 acc)). {
+             assert (H': InL z (xelements r j~.1 acc)). {
                rewrite H. constructor. reflexivity.
              }
              clear H q. rewrite xelements_spec in H'. destruct H' as [Hy|[x [-> Hx]]].

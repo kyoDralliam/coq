@@ -33,7 +33,7 @@ Fixpoint PosPow2_nat (n : nat) : positive :=
   end.
 
 Local Lemma Qpower_2_neg_eq_pospow_inv : forall n : nat,
-    (2 ^ (- Z.of_nat n) == 1#(PosPow2_nat n)%positive)%Q.
+    (2 ^ (- Z.of_nat n) == 1#/(PosPow2_nat n)%positive)%Q.
 Proof.
   intros n; induction n.
   - reflexivity.
@@ -41,13 +41,13 @@ Proof.
     rewrite <- Qmult_frac_l.
     rewrite Nat2Z.inj_succ, Z.opp_succ, <- Z.sub_1_r.
     rewrite Qpower_minus_pos.
-    change ((1 # 2) ^ 1)%Q with (1 # 2)%Q.
+    change ((1 #/ 2) ^ 1)%Q with (1 #/ 2)%Q.
     rewrite Qmult_comm, IHn; reflexivity.
 Qed.
 *)
 
 Local Lemma Qpower_2_neg_eq_natpow_inv : forall n : nat,
-    (2 ^ (- Z.of_nat n) == 1#(Pos.of_nat (2^n)%nat))%Q.
+    (2 ^ (- Z.of_nat n) == 1#/(Pos.of_nat (2^n)%nat))%Q.
 Proof.
   intros n; induction n.
   - reflexivity.
@@ -59,17 +59,17 @@ Proof.
     rewrite Qmult_frac_l.
     rewrite Nat2Z.inj_succ, Z.opp_succ, <- Z.sub_1_r.
     rewrite Qpower_minus_pos.
-    change ((1 # 2) ^ 1)%Q with (1 # 2)%Q.
+    change ((1 #/ 2) ^ 1)%Q with (1 #/ 2)%Q.
     rewrite Qmult_comm, IHn; reflexivity.
 Qed.
 
 
 Local Lemma Qpower_2_invneg_le_pow : forall n : Z,
-    (1 # Pos.of_nat (2 ^ Z.to_nat (- n)) <= 2 ^ n)%Q.
+    (1 #/ Pos.of_nat (2 ^ Z.to_nat (- n)) <= 2 ^ n)%Q.
 Proof.
   intros n; destruct n.
   - intros contra; inversion contra.
-  - (* ToDo: find out why this works - somehow 1#(...) seems to be coereced to 1 *)
+  - (* ToDo: find out why this works - somehow 1#/(...) seems to be coereced to 1 *)
     apply (Qpower_1_le_pos 2 p ltac:(lra)).
   - rewrite <- Qpower_2_neg_eq_natpow_inv.
     rewrite Z2Nat.id by lia.
@@ -145,20 +145,20 @@ Lemma lowerCutBelow : forall f : Q -> bool,
     isLowerCut f -> { q : Q | f q = true }.
 Proof.
   intros.
-  destruct (sig_forall_dec (fun n:nat => f (-(Z.of_nat n # 1))%Q = false)).
-  - intro n. destruct (f (-(Z.of_nat n # 1))%Q).
+  destruct (sig_forall_dec (fun n:nat => f (-(Z.of_nat n #/ 1))%Q = false)).
+  - intro n. destruct (f (-(Z.of_nat n #/ 1))%Q).
     + right. discriminate.
     + left. reflexivity.
-  - destruct s. exists (-(Z.of_nat x # 1))%Q.
-    destruct (f (-(Z.of_nat x # 1))%Q).
+  - destruct s. exists (-(Z.of_nat x #/ 1))%Q.
+    destruct (f (-(Z.of_nat x #/ 1))%Q).
     + reflexivity.
     + exfalso. apply n. reflexivity.
   - exfalso. destruct H, H0, H1. apply H1. intro q.
     destruct (f q) eqn:des. 2: reflexivity. exfalso.
     destruct (Qarchimedean (-q)) as [p pmaj].
-    rewrite <- (Qplus_lt_l _ _ (q-(Z.pos p # 1))) in pmaj.
+    rewrite <- (Qplus_lt_l _ _ (q-(Z.pos p #/ 1))) in pmaj.
     ring_simplify in pmaj.
-    specialize (H (- (Z.pos p#1))%Q q).
+    specialize (H (- (Z.pos p#/1))%Q q).
     specialize (e (Pos.to_nat p)).
     rewrite positive_nat_Z in e. rewrite H in e.
     + discriminate.
@@ -170,16 +170,16 @@ Lemma lowerCutAbove : forall f : Q -> bool,
     isLowerCut f -> { q : Q | f q = false }.
 Proof.
   intros.
-  destruct (sig_forall_dec (fun n => f (Z.of_nat n # 1)%Q = true)).
-  - intro n. destruct (f (Z.of_nat n # 1)%Q).
+  destruct (sig_forall_dec (fun n => f (Z.of_nat n #/ 1)%Q = true)).
+  - intro n. destruct (f (Z.of_nat n #/ 1)%Q).
     + left. reflexivity.
     + right. discriminate.
-  - destruct s. exists (Z.of_nat x # 1)%Q. destruct (f (Z.of_nat x # 1)%Q).
+  - destruct s. exists (Z.of_nat x #/ 1)%Q. destruct (f (Z.of_nat x #/ 1)%Q).
     + exfalso. apply n. reflexivity.
     + reflexivity.
   - exfalso. destruct H, H0, H1. apply H0. intro q.
     destruct (Qarchimedean q) as [p pmaj].
-    apply (H q (Z.of_nat (Pos.to_nat p) # 1)%Q).
+    apply (H q (Z.of_nat (Pos.to_nat p) #/ 1)%Q).
     + rewrite positive_nat_Z. apply Qlt_le_weak, pmaj.
     + apply e.
 Qed.
@@ -216,8 +216,8 @@ Definition DReal : Set
 (** ** Induction principle *)
 
 Fixpoint DRealQlim_rec (f : Q -> bool) (low : isLowerCut f) (n p : nat) { struct p }
-  : f (proj1_sig (lowerCutBelow f low) + (Z.of_nat p # Pos.of_nat (S n)))%Q = false
-    -> { q : Q | f q = true /\ f (q + (1 # Pos.of_nat (S n)))%Q = false }.
+  : f (proj1_sig (lowerCutBelow f low) + (Z.of_nat p #/ Pos.of_nat (S n)))%Q = false
+    -> { q : Q | f q = true /\ f (q + (1 #/ Pos.of_nat (S n)))%Q = false }.
 Proof.
   intros. destruct p.
   - exfalso. destruct (lowerCutBelow f low); unfold proj1_sig in H.
@@ -226,15 +226,15 @@ Proof.
     + simpl.
       apply (Qplus_le_l _ _ (-x)). ring_simplify. discriminate.
     + exact e.
-  - destruct (f (proj1_sig (lowerCutBelow f low) + (Z.of_nat p # Pos.of_nat (S n)))%Q) eqn:des.
-    + exists (proj1_sig (lowerCutBelow f low) + (Z.of_nat p # Pos.of_nat (S n)))%Q.
+  - destruct (f (proj1_sig (lowerCutBelow f low) + (Z.of_nat p #/ Pos.of_nat (S n)))%Q) eqn:des.
+    + exists (proj1_sig (lowerCutBelow f low) + (Z.of_nat p #/ Pos.of_nat (S n)))%Q.
       split.
       * exact des.
       * destruct (f (proj1_sig (lowerCutBelow f low)
-                     + (Z.of_nat p # Pos.of_nat (S n)) + (1 # Pos.of_nat (S n)))%Q) eqn:d.
+                     + (Z.of_nat p #/ Pos.of_nat (S n)) + (1 #/ Pos.of_nat (S n)))%Q) eqn:d.
         2: reflexivity. exfalso.
         destruct low.
-        rewrite (e _ (proj1_sig (lowerCutBelow f (conj e a)) + (Z.of_nat p # Pos.of_nat (S n)) + (1 # Pos.of_nat (S n))))%Q in H.
+        rewrite (e _ (proj1_sig (lowerCutBelow f (conj e a)) + (Z.of_nat p #/ Pos.of_nat (S n)) + (1 #/ Pos.of_nat (S n))))%Q in H.
         -- discriminate.
         -- rewrite <- Qplus_assoc, Qplus_le_r.
            rewrite Qinv_plus_distr.
@@ -272,24 +272,24 @@ Proof.
         apply Qplus_le_l. exact H0.
       * discriminate.
   - intro abs. destruct (Rfloor x) as [z [_ zmaj]].
-    specialize (abs (z+3 # 1)%Q).
-    destruct (sig_forall_dec (fun n : nat => (seq x (-Z.of_nat n) <= (z+3 # 1) + (2^-Z.of_nat n))%Q)
-                             (H (z+3 # 1)%Q)).
+    specialize (abs (z+3 #/ 1)%Q).
+    destruct (sig_forall_dec (fun n : nat => (seq x (-Z.of_nat n) <= (z+3 #/ 1) + (2^-Z.of_nat n))%Q)
+                             (H (z+3 #/ 1)%Q)).
     2: exfalso; discriminate. clear abs. destruct s as [n nmaj]. apply nmaj.
-    rewrite <- (inject_Q_plus (z#1) 2) in zmaj.
+    rewrite <- (inject_Q_plus (z#/1) 2) in zmaj.
     apply CRealLt_asym in zmaj. rewrite <- CRealLe_not_lt in zmaj.
     specialize (zmaj (-Z.of_nat n)%Z).
     unfold inject_Q in zmaj; rewrite CReal_red_seq in zmaj.
     destruct x as [xn xcau]; rewrite CReal_red_seq in H, nmaj, zmaj |- *.
     rewrite Qinv_plus_distr in zmaj.
-    apply (Qplus_le_l _ _ (-(z + 2 # 1))). apply (Qle_trans _ _ _ zmaj).
+    apply (Qplus_le_l _ _ (-(z + 2 #/ 1))). apply (Qle_trans _ _ _ zmaj).
     apply (Qplus_le_l _ _ (-(2^-Z.of_nat n))). apply (Qle_trans _ 1).
     + ring_simplify. apply Qpower_2_neg_le_one.
     + ring_simplify. rewrite <- (Qinv_plus_distr z 3 1), <- (Qinv_plus_distr z 2 1). lra.
   - intro abs. destruct (Rfloor x) as [z [zmaj _]].
-    specialize (abs (z-4 # 1)%Q).
-    destruct (sig_forall_dec (fun n : nat => (seq x (-Z.of_nat n) <= (z-4 # 1) + (2^-Z.of_nat n))%Q)
-                             (H (z-4 # 1)%Q)).
+    specialize (abs (z-4 #/ 1)%Q).
+    destruct (sig_forall_dec (fun n : nat => (seq x (-Z.of_nat n) <= (z-4 #/ 1) + (2^-Z.of_nat n))%Q)
+                             (H (z-4 #/ 1)%Q)).
     + exfalso; discriminate.
     + clear abs.
       apply CRealLt_asym in zmaj. apply zmaj. clear zmaj.
@@ -346,18 +346,18 @@ Defined.
 (** *** Conversion from DReal to CReal *)
 
 Definition DRealQlim (x : DReal) (n : nat)
-  : { q : Q | proj1_sig x q = true /\ proj1_sig x (q + (1# Pos.of_nat (S n)))%Q = false }.
+  : { q : Q | proj1_sig x q = true /\ proj1_sig x (q + (1#/ Pos.of_nat (S n)))%Q = false }.
 Proof.
   destruct x as [f low].
   destruct (lowerCutAbove f low).
   destruct (Qarchimedean (x - proj1_sig (lowerCutBelow f low))) as [p pmaj].
   apply (DRealQlim_rec f low n ((S n) * Pos.to_nat p)).
   destruct (lowerCutBelow f low); unfold proj1_sig; unfold proj1_sig in pmaj.
-  destruct (f (x0 + (Z.of_nat (S n * Pos.to_nat p) # Pos.of_nat (S n)))%Q) eqn:des.
+  destruct (f (x0 + (Z.of_nat (S n * Pos.to_nat p) #/ Pos.of_nat (S n)))%Q) eqn:des.
   2: reflexivity. exfalso. destruct low.
-  rewrite (H _ (x0 + (Z.of_nat (S n * Pos.to_nat p) # Pos.of_nat (S n)))%Q) in e.
+  rewrite (H _ (x0 + (Z.of_nat (S n * Pos.to_nat p) #/ Pos.of_nat (S n)))%Q) in e.
   - discriminate.
-  - setoid_replace (Z.of_nat (S n * Pos.to_nat p) # Pos.of_nat (S n))%Q with (Z.pos p # 1)%Q.
+  - setoid_replace (Z.of_nat (S n * Pos.to_nat p) #/ Pos.of_nat (S n))%Q with (Z.pos p #/ 1)%Q.
     + apply (Qplus_lt_l _ _ x0) in pmaj. ring_simplify in pmaj.
       apply Qlt_le_weak, pmaj.
     + rewrite Nat2Z.inj_mul, positive_nat_Z.
@@ -372,7 +372,7 @@ Proof.
 Qed.
 
 Definition DRealQlimExp2 (x : DReal) (n : nat)
-  : { q : Q | proj1_sig x q = true /\ proj1_sig x (q + (1#(Pos.of_nat (2^n)%nat)))%Q = false }.
+  : { q : Q | proj1_sig x q = true /\ proj1_sig x (q + (1#/(Pos.of_nat (2^n)%nat)))%Q = false }.
 Proof.
   destruct (DRealQlim x (pred (2^n))%nat) as [q qmaj].
   exists q.
@@ -394,7 +394,7 @@ Proof.
   destruct x as [f Hflc].
   unfold proj1_sig in *.
   apply Qabs_case.
-  - intros. apply (Qlt_le_trans _ (1 # Pos.of_nat (2 ^ Z.to_nat (-l)))).
+  - intros. apply (Qlt_le_trans _ (1 #/ Pos.of_nat (2 ^ Z.to_nat (-l)))).
     + apply (Qplus_lt_l _ _ r); ring_simplify.
       apply (UpperAboveLower f).
       * exact Hflc.
@@ -402,7 +402,7 @@ Proof.
       * apply Hr.
     + apply (Qle_trans _ _ _ (Qpower_2_invneg_le_pow _)).
       apply Qpower_le_compat_l; [lia|lra].
-  - intros. apply (Qlt_le_trans _ (1 # Pos.of_nat (2 ^ Z.to_nat (-k)))).
+  - intros. apply (Qlt_le_trans _ (1 #/ Pos.of_nat (2 ^ Z.to_nat (-k)))).
     + apply (Qplus_lt_l _ _ q); ring_simplify.
       apply (UpperAboveLower f).
       * exact Hflc.
@@ -517,23 +517,23 @@ Proof.
     destruct (DRealQlim (exist _ f (conj e (conj n (conj n0 n1)))) (Pos.to_nat p))
       as [s smaj].
     unfold proj1_sig in smaj.
-    apply (lowerUpper f (s + (1 # Pos.of_nat (S (Pos.to_nat p))))).
+    apply (lowerUpper f (s + (1 #/ Pos.of_nat (S (Pos.to_nat p))))).
     + exact (conj e (conj n (conj n0 n1))).
     + apply (Qle_trans _ (s + (r-q))).
-      * apply Qplus_le_r. apply (Qle_trans _ (1 # p)).
+      * apply Qplus_le_r. apply (Qle_trans _ (1 #/ p)).
         -- unfold Qle, Qnum, Qden. do 2 rewrite Z.mul_1_l.
            apply Pos2Z.pos_le_pos. apply Pos2Nat.inj_le.
            rewrite Nat2Pos.id.
            ++ apply le_S, Nat.le_refl.
            ++ discriminate.
-        -- apply (Qmult_le_l _ _ ( (Z.pos p # 1) / (r-q))).
-           ++ rewrite <- (Qmult_0_r (Z.pos p #1)). apply Qmult_lt_l.
+        -- apply (Qmult_le_l _ _ ( (Z.pos p #/ 1) / (r-q))).
+           ++ rewrite <- (Qmult_0_r (Z.pos p #/1)). apply Qmult_lt_l.
               ** reflexivity.
               ** apply Qinv_lt_0_compat.
                  unfold Qminus. rewrite <- Qlt_minus_iff. exact q1.
            ++ unfold Qdiv. rewrite Qmult_comm, <- Qmult_assoc.
               rewrite (Qmult_comm (/(r-q))), Qmult_inv_r, Qmult_assoc.
-              ** setoid_replace ((1 # p) * (Z.pos p # 1))%Q with 1%Q.
+              ** setoid_replace ((1 #/ p) * (Z.pos p #/ 1))%Q with 1%Q.
                  2: reflexivity. rewrite Qmult_1_l, Qmult_1_r.
                  apply Qlt_le_weak, pmaj.
               ** intro abs. apply Qlt_minus_iff in q1.
@@ -550,14 +550,14 @@ Proof.
 
   (* expand and simplify goal and hypothesis *)
   destruct (DRealOpen x q H) as [r rmaj].
-  destruct (QarchimedeanLowExp2_Z ((1#4)*(r - q))) as [p pmaj].
+  destruct (QarchimedeanLowExp2_Z ((1#/4)*(r - q))) as [p pmaj].
     1: lra.
   exists (p)%Z.
   destruct x as [f low]; unfold DRealRepr, CReal_of_DReal_seq, inject_Q; do 2 rewrite CReal_red_seq.
   destruct (DRealQlimExp2 (exist _ f low) (Z.to_nat (-p))) as [s smaj].
   unfold proj1_sig in smaj, rmaj, H |- * .
   rewrite <- (Qmult_lt_l _ _ 4%Q) in pmaj by lra.
-  setoid_replace (4 * ((1 # 4) * (r - q)))%Q with (r-q)%Q in pmaj by ring.
+  setoid_replace (4 * ((1 #/ 4) * (r - q)))%Q with (r-q)%Q in pmaj by ring.
   apply proj2 in rmaj.
   apply proj2 in smaj.
 

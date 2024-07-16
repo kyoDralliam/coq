@@ -4,7 +4,7 @@ Require Import ConstructiveEpsilon.
 Definition Z_inj_nat (z : Z) : nat :=
   match z with
   | Z0 => 0
-  | Zpos p => Pos.to_nat (p~0)
+  | Zpos p => Pos.to_nat (p~.0)
   | Zneg p => Pos.to_nat (Pos.pred_double p)
   end.
 
@@ -35,8 +35,8 @@ Proof.
   destruct z eqn:Hdz.
   - reflexivity.
   - rewrite Pos2Nat.id.
-    destruct (Pos.to_nat p~0) eqn:Hd.
-    + pose proof Pos2Nat.is_pos p~0 as H.
+    destruct (Pos.to_nat p~.0) eqn:Hd.
+    + pose proof Pos2Nat.is_pos p~.0 as H.
       rewrite <- Nat.neq_0_lt_0 in H.
       exfalso; apply H, Hd.
     + reflexivity.

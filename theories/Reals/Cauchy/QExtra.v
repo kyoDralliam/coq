@@ -10,8 +10,8 @@ Require Import PosExtra.
 
 Fixpoint Pos_log2floor_plus1 (p : positive) : positive :=
   match p with
-  | (p'~1)%positive => Pos.succ (Pos_log2floor_plus1 p')
-  | (p'~0)%positive => Pos.succ (Pos_log2floor_plus1 p')
+  | (p'~.1)%positive => Pos.succ (Pos_log2floor_plus1 p')
+  | (p'~.0)%positive => Pos.succ (Pos_log2floor_plus1 p')
   | 1%positive      => 1
   end.
 
@@ -32,8 +32,8 @@ Qed.
 
 Fixpoint Pos_log2ceil_plus1 (p : positive) : positive :=
   match p with
-  | (p'~1)%positive => Pos.succ (Pos.succ (Pos_log2floor_plus1 p'))
-  | (p'~0)%positive => Pos.succ (Pos_log2ceil_plus1 p')
+  | (p'~.1)%positive => Pos.succ (Pos.succ (Pos_log2floor_plus1 p'))
+  | (p'~.0)%positive => Pos.succ (Pos_log2ceil_plus1 p')
   | 1%positive      => 1
   end.
 
@@ -56,8 +56,8 @@ Qed.
 
 Fixpoint Pos_is_pow2 (p : positive) : bool :=
   match p with
-  | (p'~1)%positive => false
-  | (p'~0)%positive => Pos_is_pow2 p'
+  | (p'~.1)%positive => false
+  | (p'~.0)%positive => Pos_is_pow2 p'
   | 1%positive      => true
   end.
 
@@ -126,10 +126,10 @@ Definition Qbound_lt_ZExp2 (q : Q) : Z :=
   | Zpos p => Z.pos_sub (Pos.succ (Pos_log2floor_plus1 p)) (Pos_log2floor_plus1 (Qden q))
   end.
 
-Remark Qbound_lt_ZExp2_test_1 : Qbound_lt_ZExp2 (4#4) = 1%Z. reflexivity. Qed.
-Remark Qbound_lt_ZExp2_test_2 : Qbound_lt_ZExp2 (5#4) = 1%Z. reflexivity. Qed.
-Remark Qbound_lt_ZExp2_test_3 : Qbound_lt_ZExp2 (4#5) = 1%Z. reflexivity. Qed.
-Remark Qbound_lt_ZExp2_test_4 : Qbound_lt_ZExp2 (7#5) = 1%Z. reflexivity. Qed.
+Remark Qbound_lt_ZExp2_test_1 : Qbound_lt_ZExp2 (4#/4) = 1%Z. reflexivity. Qed.
+Remark Qbound_lt_ZExp2_test_2 : Qbound_lt_ZExp2 (5#/4) = 1%Z. reflexivity. Qed.
+Remark Qbound_lt_ZExp2_test_3 : Qbound_lt_ZExp2 (4#/5) = 1%Z. reflexivity. Qed.
+Remark Qbound_lt_ZExp2_test_4 : Qbound_lt_ZExp2 (7#/5) = 1%Z. reflexivity. Qed.
 
 Lemma Qbound_lt_ZExp2_spec : forall (q : Q),
   (q < 2^(Qbound_lt_ZExp2 q))%Q.
@@ -139,9 +139,9 @@ Proof.
   - reflexivity.
   - (* Todo: A lemma like Pos2Z.add_neg_pos for minus would be nice *)
     change
-      (Z.pos_sub (Pos.succ (Pos_log2floor_plus1 p)) (Pos_log2floor_plus1 (Qden (Z.pos p # den))))%Z
+      (Z.pos_sub (Pos.succ (Pos_log2floor_plus1 p)) (Pos_log2floor_plus1 (Qden (Z.pos p #/ den))))%Z
       with
-      ((Z.pos (Pos.succ (Pos_log2floor_plus1 p)) - Z.pos (Pos_log2floor_plus1 (Qden (Z.pos p # den)))))%Z.
+      ((Z.pos (Pos.succ (Pos_log2floor_plus1 p)) - Z.pos (Pos_log2floor_plus1 (Qden (Z.pos p #/ den)))))%Z.
     rewrite Qpower_minus by lra.
     apply Qlt_shift_div_l.
     + apply Qpower_0_lt; lra.
@@ -164,7 +164,7 @@ Proof.
         apply Zmult_lt_compat2; lia.
   - cbn.
     (* ToDo: lra could know that negative fractions are negative *)
-    assert (Z.neg p # den < 0) as Hnegfrac by (unfold Qlt, Qnum, Qden; lia).
+    assert (Z.neg p #/ den < 0) as Hnegfrac by (unfold Qlt, Qnum, Qden; lia).
     lra.
 Qed.
 

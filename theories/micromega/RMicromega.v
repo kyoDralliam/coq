@@ -168,9 +168,9 @@ Definition z_of_exp (z : Z + nat) :=
 
 Fixpoint Q_of_Rcst (r : Rcst) : Q :=
   match r with
-    | C0 => 0 # 1
-    | C1 => 1 # 1
-    | CZ z => z # 1
+    | C0 => 0 #/ 1
+    | C1 => 1 #/ 1
+    | CZ z => z #/ 1
     | CQ q => q
     | CPlus r1 r2 => Qplus (Q_of_Rcst r1) (Q_of_Rcst r2)
     | CMinus r1 r2 => Qminus (Q_of_Rcst r1) (Q_of_Rcst r2)
@@ -204,10 +204,10 @@ Proof.
   - generalize (Zle_0_nat n). auto using Z.le_ge.
 Qed.
 
-Definition CInvR0 (r : Rcst) := Qeq_bool (Q_of_Rcst r) (0 # 1).
+Definition CInvR0 (r : Rcst) := Qeq_bool (Q_of_Rcst r) (0 #/ 1).
 
 Definition CPowR0 (z : Z) (r : Rcst) :=
-  Z.ltb z Z0 && Qeq_bool (Q_of_Rcst r) (0 # 1).
+  Z.ltb z Z0 && Qeq_bool (Q_of_Rcst r) (0 #/ 1).
 
 Fixpoint R_of_Rcst (r : Rcst) : R :=
   match r with

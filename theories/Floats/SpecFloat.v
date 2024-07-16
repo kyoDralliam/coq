@@ -401,7 +401,7 @@ Section FloatOps.
     match x with
     | S754_finite _ mx _ =>
       let d :=
-        if (mx~0 =? shift_pos (Z.to_pos prec) 1)%positive then
+        if (mx~.0 =? shift_pos (Z.to_pos prec) 1)%positive then
           SFldexp SFone (fexp (snd (SFfrexp x) - 1))
         else
           SFulp x in

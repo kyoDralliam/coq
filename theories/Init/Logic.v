@@ -24,13 +24,13 @@ Set Universe Polymorphism.
 
 Inductive obseq@{u} (A : Type@{u}) (a : A) : forall (b : A), SProp :=
 | obseq_refl : obseq A a a.
-Notation "a ~ b" := (obseq _ a b) (at level 50).
+Notation "a ~ b" := (obseq _ a b) (at level 70).
 Arguments obseq {A} a _.
 Arguments obseq_refl {A a} , [A] a.
 
 Definition obseq_trans {A : Type} {a b c : A} (e : a ~ b) (e' : b ~ c) : a ~ c :=
   obseq_sind _ b (fun X _ => a ~ X) e c e'.
-Notation "e @@@ f" := (obseq_trans e f) (at level 40, left associativity, only parsing).
+Notation "e @@@ f" := (obseq_trans e f) (at level 49, left associativity, only parsing).
 
 Definition obseq_sym {A : Type} {a b : A} (e : a ~ b) : b ~ a :=
   obseq_sind _ a (fun X _ => X ~ a) obseq_refl b e.
@@ -38,14 +38,14 @@ Definition obseq_sym {A : Type} {a b : A} (e : a ~ b) : b ~ a :=
 (* Type casting *)
 
 Symbol cast@{u} : forall (A B : Type@{u}), @obseq@{u+1} Type@{u} A B -> A -> B.
-Notation "e # a" := (cast _ _ e a) (at level 55, only parsing).
+Notation "e # a" := (cast _ _ e a) (at level 65, only parsing).
 
 (* SProp casting *)
 (* We do not want to use sort polymorphism for cast, to avoid useless (and potentially looping)
    computations in SProp *)
 
 Definition cast_prop (A B : SProp) (e : @obseq@{Set+1} SProp A B) (a : A) := obseq_sind SProp A (fun X _ => X) a B e.
-Notation "e #% a" := (cast_prop _ _ e a) (at level 40, only parsing).
+Notation "e #% a" := (cast_prop _ _ e a) (at level 60, only parsing).
 
 Rewrite Rule cast_refl :=
 | cast ?A ?A _ ?t >-> ?t.

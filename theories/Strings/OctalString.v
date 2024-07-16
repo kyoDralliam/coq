@@ -30,21 +30,21 @@ Definition ascii_to_digit (ch : ascii) : option N
 
 Fixpoint pos_oct_app (p q:positive) : positive :=
   match q with
-  | 1 => p~0~0~1
-  | 2 => p~0~1~0
-  | 3 => p~0~1~1
-  | 4 => p~1~0~0
-  | 5 => p~1~0~1
-  | 6 => p~1~1~0
-  | 7 => p~1~1~1
-  | q~0~0~0 => (pos_oct_app p q)~0~0~0
-  | q~0~0~1 => (pos_oct_app p q)~0~0~1
-  | q~0~1~0 => (pos_oct_app p q)~0~1~0
-  | q~0~1~1 => (pos_oct_app p q)~0~1~1
-  | q~1~0~0 => (pos_oct_app p q)~1~0~0
-  | q~1~0~1 => (pos_oct_app p q)~1~0~1
-  | q~1~1~0 => (pos_oct_app p q)~1~1~0
-  | q~1~1~1 => (pos_oct_app p q)~1~1~1
+  | 1 => p~.0~.0~.1
+  | 2 => p~.0~.1~.0
+  | 3 => p~.0~.1~.1
+  | 4 => p~.1~.0~.0
+  | 5 => p~.1~.0~.1
+  | 6 => p~.1~.1~.0
+  | 7 => p~.1~.1~.1
+  | q~.0~.0~.0 => (pos_oct_app p q)~.0~.0~.0
+  | q~.0~.0~.1 => (pos_oct_app p q)~.0~.0~.1
+  | q~.0~.1~.0 => (pos_oct_app p q)~.0~.1~.0
+  | q~.0~.1~.1 => (pos_oct_app p q)~.0~.1~.1
+  | q~.1~.0~.0 => (pos_oct_app p q)~.1~.0~.0
+  | q~.1~.0~.1 => (pos_oct_app p q)~.1~.0~.1
+  | q~.1~.1~.0 => (pos_oct_app p q)~.1~.1~.0
+  | q~.1~.1~.1 => (pos_oct_app p q)~.1~.1~.1
   end.
 
 Module Raw.
@@ -57,14 +57,14 @@ Module Raw.
        | 5 => String "5" rest
        | 6 => String "6" rest
        | 7 => String "7" rest
-       | p'~0~0~0 => of_pos p' (String "0" rest)
-       | p'~0~0~1 => of_pos p' (String "1" rest)
-       | p'~0~1~0 => of_pos p' (String "2" rest)
-       | p'~0~1~1 => of_pos p' (String "3" rest)
-       | p'~1~0~0 => of_pos p' (String "4" rest)
-       | p'~1~0~1 => of_pos p' (String "5" rest)
-       | p'~1~1~0 => of_pos p' (String "6" rest)
-       | p'~1~1~1 => of_pos p' (String "7" rest)
+       | p'~.0~.0~.0 => of_pos p' (String "0" rest)
+       | p'~.0~.0~.1 => of_pos p' (String "1" rest)
+       | p'~.0~.1~.0 => of_pos p' (String "2" rest)
+       | p'~.0~.1~.1 => of_pos p' (String "3" rest)
+       | p'~.1~.0~.0 => of_pos p' (String "4" rest)
+       | p'~.1~.0~.1 => of_pos p' (String "5" rest)
+       | p'~.1~.1~.0 => of_pos p' (String "6" rest)
+       | p'~.1~.1~.1 => of_pos p' (String "7" rest)
        end.
 
   Fixpoint to_N (s : string) (rest : N)

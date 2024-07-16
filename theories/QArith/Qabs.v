@@ -14,7 +14,7 @@ Require Export Qreduction.
 #[global]
 Hint Resolve Qlt_le_weak : qarith.
 
-Definition Qabs (x:Q) := let (n,d):=x in (Z.abs n#d).
+Definition Qabs (x:Q) := let (n,d):=x in (Z.abs n#/d).
 
 Lemma Qabs_case : forall (x:Q) (P : Q -> Type), (0 <= x -> P x) -> (x <= 0 -> P (- x)) -> P (Qabs x).
 Proof.
@@ -64,7 +64,7 @@ apply Qabs_case.
 - apply (Qopp_le_compat x 0).
 Qed.
 
-Lemma Zabs_Qabs : forall n d, (Z.abs n#d)==Qabs (n#d).
+Lemma Zabs_Qabs : forall n d, (Z.abs n#/d)==Qabs (n#/d).
 Proof.
 intros [|n|n]; reflexivity.
 Qed.

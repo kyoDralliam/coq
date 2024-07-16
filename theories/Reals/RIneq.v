@@ -2252,10 +2252,10 @@ Hint Resolve not_1_INR: real.
 Lemma IPR_2_xH : IPR_2 xH = 2.
 Proof. reflexivity. Qed.
 
-Lemma IPR_2_xO : forall p : positive, IPR_2 (p~0) = 2 * (IPR_2 p).
+Lemma IPR_2_xO : forall p : positive, IPR_2 (p~.0) = 2 * (IPR_2 p).
 Proof. now intros p. Qed.
 
-Lemma IPR_2_xI : forall p : positive, IPR_2 (p~1) = 2 * (IPR_2 p) + 2.
+Lemma IPR_2_xI : forall p : positive, IPR_2 (p~.1) = 2 * (IPR_2 p) + 2.
 Proof.
   intros p; simpl.
   rewrite (Rplus_comm _ 2), <-(Rmult_1_r 2) at 1.
@@ -2274,7 +2274,7 @@ Proof.
   - now rewrite IPR_2_xH, Rmult_1_r.
 Qed.
 
-Lemma IPR_xO : forall p : positive, IPR (p~0) = 2 * IPR p.
+Lemma IPR_xO : forall p : positive, IPR (p~.0) = 2 * IPR p.
 Proof.
   intros p.
   apply (Rmult_eq_reg_l 2); cycle 1.
@@ -2282,7 +2282,7 @@ Proof.
   now rewrite 2IPR_IPR_2, IPR_2_xO.
 Qed.
 
-Lemma IPR_xI : forall p : positive, IPR (p~1) = 2 * IPR p + 1.
+Lemma IPR_xI : forall p : positive, IPR (p~.1) = 2 * IPR p + 1.
 Proof.
   intros p.
   apply (Rmult_eq_reg_l 2); cycle 1.
@@ -2469,7 +2469,7 @@ Proof. reflexivity. Qed.
     convenient to keep constants represented under an [IZR z] form when
     working within [R]. *)
 
-Lemma IZR_POS_xO : forall p, IZR (Zpos (p~0)) = 2 * (IZR (Zpos p)).
+Lemma IZR_POS_xO : forall p, IZR (Zpos (p~.0)) = 2 * (IZR (Zpos p)).
 Proof.
   now unfold IZR, IPR; intros [p | p |]; simpl; try easy; rewrite Rmult_1_r.
 Qed.

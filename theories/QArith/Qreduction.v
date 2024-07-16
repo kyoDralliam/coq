@@ -22,7 +22,7 @@ Notation Z2P_correct := Z2Pos.id (only parsing).
 Definition Qred (q:Q) :=
   let (q1,q2) := q in
   let (r1,r2) := snd (Z.ggcd q1 (Zpos q2))
-  in r1#(Z.to_pos r2).
+  in r1#/(Z.to_pos r2).
 
 Lemma Qred_correct : forall q, (Qred q) == q.
 Proof.

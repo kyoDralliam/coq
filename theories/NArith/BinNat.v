@@ -503,7 +503,7 @@ Proof.
   destruct n as [|p].
   - discriminate.
   - simpl.
-    change (2^Pos.size p <= Pos.succ (p~0))%positive.
+    change (2^Pos.size p <= Pos.succ (p~.0))%positive.
     apply Pos.lt_le_incl, Pos.lt_succ_r, Pos.size_le.
 Qed.
 
@@ -559,16 +559,16 @@ Theorem pos_div_eucl_spec (a:positive)(b:N) :
 Proof.
   induction a as [a IHa|a IHa|];
     cbv beta iota delta [pos_div_eucl]; fold pos_div_eucl; cbv zeta.
-  - (* a~1 *)
+  - (* a~.1 *)
     destruct pos_div_eucl as (q,r).
-    change (pos a~1) with (succ_double (pos a)).
+    change (pos a~.1) with (succ_double (pos a)).
     rewrite IHa, succ_double_add, double_mul.
     case leb_spec; intros H; trivial.
     rewrite succ_double_mul, <- add_assoc. f_equal.
     now rewrite (add_comm b), sub_add.
-  - (* a~0 *)
+  - (* a~.0 *)
     destruct pos_div_eucl as (q,r).
-    change (pos a~0) with (double (pos a)).
+    change (pos a~.0) with (double (pos a)).
     rewrite IHa, double_add, double_mul.
     case leb_spec; intros H; trivial.
     rewrite succ_double_mul, <- add_assoc. f_equal.
@@ -602,13 +602,13 @@ Proof.
   intros Hb.
   induction a as [a IHa|a IHa|];
     cbv beta iota delta [pos_div_eucl]; fold pos_div_eucl; cbv zeta.
-  - (* a~1 *)
+  - (* a~.1 *)
     destruct pos_div_eucl as (q,r); simpl in *.
     case leb_spec; intros H; simpl; trivial.
     apply add_lt_mono_l with b. rewrite add_comm, sub_add by trivial.
     destruct b as [|b]; [now destruct Hb| simpl; rewrite Pos.add_diag ].
     apply (succ_double_lt _ _ IHa).
-  - (* a~0 *)
+  - (* a~.0 *)
     destruct pos_div_eucl as (q,r); simpl in *.
     case leb_spec; intros H; simpl; trivial.
     apply add_lt_mono_l with b. rewrite add_comm, sub_add by trivial.

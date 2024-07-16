@@ -79,14 +79,14 @@ Proof.
       * reflexivity.
       * rewrite Radd_comm. reflexivity.
   - apply (CRle_trans _ _ _ (CRabs_triang _ _)).
-    apply (CRle_trans _ (CRplus R (CR_of_Q R (1 # 2*p)) (CR_of_Q R (1 # 2*p)))).
+    apply (CRle_trans _ (CRplus R (CR_of_Q R (1 #/ 2*p)) (CR_of_Q R (1 #/ 2*p)))).
     + apply CRplus_le_compat.
       * apply imaj, (Nat.le_trans _ _ _ (Nat.le_max_l _ _) H).
       * apply jmaj, (Nat.le_trans _ _ _ (Nat.le_max_r _ _) H).
-    + apply (CRle_trans _ (CR_of_Q R ((1 # 2 * p) + (1 # 2 * p)))).
+    + apply (CRle_trans _ (CR_of_Q R ((1 #/ 2 * p) + (1 #/ 2 * p)))).
       * apply CR_of_Q_plus.
       * apply CR_of_Q_le.
-        rewrite Qinv_plus_distr. setoid_replace (1 + 1 # 2 * p) with (1 # p).
+        rewrite Qinv_plus_distr. setoid_replace (1 + 1 #/ 2 * p) with (1 #/ p).
         -- apply Qle_refl.
         -- reflexivity.
 Qed.
@@ -119,9 +119,9 @@ Proof.
     apply (CRlt_trans _ (CR_of_Q R (-q))).
     + apply CR_of_Q_lt.
       apply H2 in pmaj.
-      * apply (Qmult_lt_r _ _ (1#p)) in pmaj. 2: reflexivity.
+      * apply (Qmult_lt_r _ _ (1#/p)) in pmaj. 2: reflexivity.
         rewrite Qmult_1_l, <- Qmult_assoc in pmaj.
-        setoid_replace ((Z.pos p # 1) * (1 # p))%Q with 1%Q in pmaj.
+        setoid_replace ((Z.pos p #/ 1) * (1 #/ p))%Q with 1%Q in pmaj.
         -- rewrite Qmult_1_r in pmaj. exact pmaj.
         -- unfold Qeq, Qnum, Qden; simpl.
            do 2 rewrite Pos.mul_1_r. reflexivity.
@@ -142,9 +142,9 @@ Proof.
     apply (CRlt_trans _ (CR_of_Q R q)).
     + apply CR_of_Q_lt.
       apply H2 in pmaj.
-      * apply (Qmult_lt_r _ _ (1#p)) in pmaj. 2: reflexivity.
+      * apply (Qmult_lt_r _ _ (1#/p)) in pmaj. 2: reflexivity.
         rewrite Qmult_1_l, <- Qmult_assoc in pmaj.
-        setoid_replace ((Z.pos p # 1) * (1 # p))%Q with 1%Q in pmaj.
+        setoid_replace ((Z.pos p #/ 1) * (1 #/ p))%Q with 1%Q in pmaj.
         -- rewrite Qmult_1_r in pmaj. exact pmaj.
         -- unfold Qeq, Qnum, Qden; simpl.
            do 2 rewrite Pos.mul_1_r. reflexivity.
@@ -215,13 +215,13 @@ Lemma Un_cv_nat_real : forall {R : ConstructiveReals}
       -> { p : nat & forall i:nat, le p i -> CRabs R (un i - l) < eps }.
 Proof.
   intros. destruct (CR_archimedean R (CRinv R eps (inr H0))) as [k kmaj].
-  assert (0 < CR_of_Q R (Z.pos k # 1)).
+  assert (0 < CR_of_Q R (Z.pos k #/ 1)).
   { apply CR_of_Q_lt. reflexivity. }
   specialize (H k) as [p pmaj].
   exists p. intros.
-  apply (CRle_lt_trans _ (CR_of_Q R (1 # k))).
+  apply (CRle_lt_trans _ (CR_of_Q R (1 #/ k))).
   - apply pmaj, H.
-  - apply (CRmult_lt_reg_l (CR_of_Q R (Z.pos k # 1))).
+  - apply (CRmult_lt_reg_l (CR_of_Q R (Z.pos k #/ 1))).
     + exact H1.
     + rewrite <- CR_of_Q_mult.
       apply (CRle_lt_trans _ 1).
@@ -241,7 +241,7 @@ Lemma Un_cv_real_nat : forall {R : ConstructiveReals}
     -> CR_cv R un l.
 Proof.
   intros. intros n.
-  specialize (H (CR_of_Q R (1#n))) as [p pmaj].
+  specialize (H (CR_of_Q R (1#/n))) as [p pmaj].
   - apply CR_of_Q_lt. reflexivity.
   - exists p. intros. apply CRlt_asym. apply pmaj. apply H.
 Qed.
@@ -287,19 +287,19 @@ Proof.
   exists x0. intros.
   unfold CRminus. rewrite CRopp_mult_distr_l.
   rewrite <- CRmult_plus_distr_r.
-  apply (CRle_trans _ ((CR_of_Q R (1 # n * x)) * CRabs R a)).
+  apply (CRle_trans _ ((CR_of_Q R (1 #/ n * x)) * CRabs R a)).
   - rewrite CRabs_mult. apply CRmult_le_compat_r.
     + apply CRabs_pos.
     + apply c0, H0.
-  - setoid_replace (1 # n * x)%Q with ((1 # n) *(1# x))%Q. 2: reflexivity.
-    rewrite <- (CRmult_1_r (CR_of_Q R (1#n))).
+  - setoid_replace (1 #/ n * x)%Q with ((1 #/ n) *(1#/ x))%Q. 2: reflexivity.
+    rewrite <- (CRmult_1_r (CR_of_Q R (1#/n))).
     rewrite CR_of_Q_mult, CRmult_assoc.
     apply CRmult_le_compat_l.
     + apply CR_of_Q_le. discriminate.
     + intro abs.
-      apply (CRmult_lt_compat_l (CR_of_Q R (Z.pos x #1))) in abs.
+      apply (CRmult_lt_compat_l (CR_of_Q R (Z.pos x #/1))) in abs.
       * rewrite CRmult_1_r, <- CRmult_assoc, <- CR_of_Q_mult in abs.
-        rewrite (CR_of_Q_morph R ((Z.pos x # 1) * (1 # x))%Q 1%Q) in abs.
+        rewrite (CR_of_Q_morph R ((Z.pos x #/ 1) * (1 #/ x))%Q 1%Q) in abs.
         -- rewrite CRmult_1_l in abs.
            apply (CRlt_asym _ _ abs), (CRlt_trans _ (1 + CRabs R a)).
            2: exact c. rewrite <- CRplus_0_l, <- CRplus_assoc.
@@ -329,7 +329,7 @@ Lemma Rcv_cauchy_mod : forall {R : ConstructiveReals}
 Proof.
   intros. intros p. specialize (H (2*p)%positive) as [k H].
   exists k. intros n q H0 H1.
-  setoid_replace (1#p)%Q with ((1#2*p) + (1#2*p))%Q.
+  setoid_replace (1#/p)%Q with ((1#/2*p) + (1#/2*p))%Q.
   - rewrite CR_of_Q_plus.
     setoid_replace (un n - un q) with ((un n - l) - (un q - l)).
     + apply (CRle_trans _ _ _ (CRabs_triang _ _)).

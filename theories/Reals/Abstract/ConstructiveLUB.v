@@ -44,21 +44,21 @@ Lemma CRlt_lpo_dec : forall {R : ConstructiveReals} (x y : CRcarrier R),
     -> sum (x < y) (y <= x).
 Proof.
   intros R x y lpo.
-  assert (forall (z:CRcarrier R) (n : nat), z < z + CR_of_Q R (1 # Pos.of_nat (S n))).
+  assert (forall (z:CRcarrier R) (n : nat), z < z + CR_of_Q R (1 #/ Pos.of_nat (S n))).
   { intros. apply (CRle_lt_trans _ (z+0)).
     - rewrite CRplus_0_r. apply CRle_refl.
     - apply CRplus_lt_compat_l.
       apply CR_of_Q_pos. reflexivity. }
   pose (fun n:nat => let (q,_) := CR_Q_dense
-                               R x (x + CR_of_Q R (1 # Pos.of_nat (S n))) (H x n)
+                               R x (x + CR_of_Q R (1 #/ Pos.of_nat (S n))) (H x n)
                 in q)
     as xn.
   pose (fun n:nat => let (q,_) := CR_Q_dense
-                               R y (y + CR_of_Q R (1 # Pos.of_nat (S n))) (H y n)
+                               R y (y + CR_of_Q R (1 #/ Pos.of_nat (S n))) (H y n)
                 in q)
     as yn.
-  destruct (lpo (fun n => Qle (yn n) (xn n + (1 # Pos.of_nat (S n))))).
-  - intro n. destruct (Q_dec (yn n) (xn n + (1 # Pos.of_nat (S n)))).
+  destruct (lpo (fun n => Qle (yn n) (xn n + (1 #/ Pos.of_nat (S n))))).
+  - intro n. destruct (Q_dec (yn n) (xn n + (1 #/ Pos.of_nat (S n)))).
     + destruct s.
       * left. apply Qlt_le_weak, q.
       * right. apply (Qlt_not_le _ _ q).
@@ -67,28 +67,28 @@ Proof.
   - left. destruct s as [n nmaj]. apply Qnot_le_lt in nmaj.
     apply (CRlt_le_trans _ (CR_of_Q R (xn n))).
     + unfold xn.
-      destruct (CR_Q_dense R x (x + CR_of_Q R (1 # Pos.of_nat (S n))) (H x n)).
+      destruct (CR_Q_dense R x (x + CR_of_Q R (1 #/ Pos.of_nat (S n))) (H x n)).
       exact (fst p).
-    + apply (CRle_trans _ (CR_of_Q R (yn n - (1 # Pos.of_nat (S n))))).
-      * apply CR_of_Q_le. rewrite <- (Qplus_le_l _ _ (1# Pos.of_nat (S n))).
+    + apply (CRle_trans _ (CR_of_Q R (yn n - (1 #/ Pos.of_nat (S n))))).
+      * apply CR_of_Q_le. rewrite <- (Qplus_le_l _ _ (1#/ Pos.of_nat (S n))).
         ring_simplify. apply Qlt_le_weak, nmaj.
       * unfold yn.
-        destruct (CR_Q_dense R y (y + CR_of_Q R (1 # Pos.of_nat (S n))) (H y n)).
+        destruct (CR_Q_dense R y (y + CR_of_Q R (1 #/ Pos.of_nat (S n))) (H y n)).
         unfold Qminus. rewrite CR_of_Q_plus, CR_of_Q_opp.
-        apply (CRplus_le_reg_r (CR_of_Q R (1 # Pos.of_nat (S n)))).
+        apply (CRplus_le_reg_r (CR_of_Q R (1 #/ Pos.of_nat (S n)))).
         rewrite CRplus_assoc, CRplus_opp_l, CRplus_0_r.
         apply CRlt_asym, (snd p).
   - right. apply (CR_cv_le (fun n => CR_of_Q R (yn n))
-                           (fun n => CR_of_Q R (xn n) + CR_of_Q R (1 # Pos.of_nat (S n)))).
+                           (fun n => CR_of_Q R (xn n) + CR_of_Q R (1 #/ Pos.of_nat (S n)))).
     + intro n. rewrite <- CR_of_Q_plus. apply CR_of_Q_le. exact (q n).
     + intro p. exists (Pos.to_nat p). intros.
       unfold yn.
-      destruct (CR_Q_dense R y (y + CR_of_Q R (1 # Pos.of_nat (S i))) (H y i)).
+      destruct (CR_Q_dense R y (y + CR_of_Q R (1 #/ Pos.of_nat (S i))) (H y i)).
       rewrite CRabs_right.
       * apply (CRplus_le_reg_r y).
         unfold CRminus. rewrite CRplus_assoc, CRplus_opp_l, CRplus_0_r.
         rewrite CRplus_comm.
-        apply (CRle_trans _ (y + CR_of_Q R (1 # Pos.of_nat (S i)))).
+        apply (CRle_trans _ (y + CR_of_Q R (1 #/ Pos.of_nat (S i)))).
         -- apply CRlt_asym, (snd p0).
         -- apply CRplus_le_compat_l.
            apply CR_of_Q_le. unfold Qle, Qnum, Qden.
@@ -102,12 +102,12 @@ Proof.
       apply CR_cv_plus.
       * intro p. exists (Pos.to_nat p). intros.
         unfold xn.
-        destruct (CR_Q_dense R x (x + CR_of_Q R (1 # Pos.of_nat (S i))) (H x i)).
+        destruct (CR_Q_dense R x (x + CR_of_Q R (1 #/ Pos.of_nat (S i))) (H x i)).
         rewrite CRabs_right.
         -- apply (CRplus_le_reg_r x).
            unfold CRminus. rewrite CRplus_assoc, CRplus_opp_l, CRplus_0_r.
            rewrite CRplus_comm.
-           apply (CRle_trans _ (x + CR_of_Q R (1 # Pos.of_nat (S i)))).
+           apply (CRle_trans _ (x + CR_of_Q R (1 #/ Pos.of_nat (S i)))).
            ++ apply CRlt_asym, (snd p0).
            ++ apply CRplus_le_compat_l.
               apply CR_of_Q_le. unfold Qle, Qnum, Qden.
@@ -150,7 +150,7 @@ Lemma is_upper_bound_epsilon :
     sig_forall_dec_T
     -> sig_not_dec_T
     -> (exists x:CRcarrier R, is_upper_bound E x)
-    -> { n:nat | is_upper_bound E (CR_of_Q R (Z.of_nat n # 1)) }.
+    -> { n:nat | is_upper_bound E (CR_of_Q R (Z.of_nat n #/ 1)) }.
 Proof.
   intros R E lpo sig_not_dec Ebound.
   apply constructive_indefinite_ground_description_nat.
@@ -167,12 +167,12 @@ Lemma is_upper_bound_not_epsilon :
     sig_forall_dec_T
     -> sig_not_dec_T
     -> (exists x : CRcarrier R, E x)
-    -> { m:nat | ~is_upper_bound E (-CR_of_Q R (Z.of_nat m # 1)) }.
+    -> { m:nat | ~is_upper_bound E (-CR_of_Q R (Z.of_nat m #/ 1)) }.
 Proof.
   intros R E lpo sig_not_dec H.
   apply constructive_indefinite_ground_description_nat.
   - intro n.
-    destruct (is_upper_bound_dec E (-CR_of_Q R (Z.of_nat n # 1)) lpo sig_not_dec).
+    destruct (is_upper_bound_dec E (-CR_of_Q R (Z.of_nat n #/ 1)) lpo sig_not_dec).
     + right. intro abs. contradiction.
     + left. exact n0.
   - destruct H as [x H]. destruct (CRup_nat (-x)) as [n H0].
@@ -206,19 +206,19 @@ Qed.
 
 Fixpoint DDcut_limit_fix (upcut : DedekindDecCut) (r : Q) (n : nat) :
   Qlt 0 r
-  -> (DDupcut upcut (DDlow upcut + (Z.of_nat n#1) * r))
+  -> (DDupcut upcut (DDlow upcut + (Z.of_nat n#/1) * r))
   -> { q : Q | DDupcut upcut q /\ ~DDupcut upcut (q - r) }.
 Proof.
   destruct n.
   - intros. exfalso. simpl in H0.
     apply (DDproper upcut _ (DDlow upcut)) in H0. 2: ring.
     exact (DDlowProp upcut H0).
-  - intros. destruct (DDdec upcut (DDlow upcut + (Z.of_nat n # 1) * r)).
+  - intros. destruct (DDdec upcut (DDlow upcut + (Z.of_nat n #/ 1) * r)).
     + exact (DDcut_limit_fix upcut r n H d).
-    + exists (DDlow upcut + (Z.of_nat (S n) # 1) * r)%Q. split.
+    + exists (DDlow upcut + (Z.of_nat (S n) #/ 1) * r)%Q. split.
       * exact H0.
       * intro abs.
-        apply (DDproper upcut _ (DDlow upcut + (Z.of_nat n # 1) * r)) in abs.
+        apply (DDproper upcut _ (DDlow upcut + (Z.of_nat n #/ 1) * r)) in abs.
         -- contradiction.
         -- rewrite Nat2Z.inj_succ. unfold Z.succ. rewrite <- Qinv_plus_distr.
            ring.
@@ -251,17 +251,17 @@ Proof.
   assert (forall a b : Q, Qle a b -> Qle (-b) (-a)).
   { intros. apply (Qplus_le_l _ _ (a+b)). ring_simplify. exact H. }
   assert (CR_cauchy R (fun n:nat => CR_of_Q R (proj1_sig (DDcut_limit
-                                           upcut (1#Pos.of_nat n) (eq_refl _))))).
+                                           upcut (1#/Pos.of_nat n) (eq_refl _))))).
   { intros p. exists (Pos.to_nat p). intros i j pi pj.
-    destruct (DDcut_limit upcut (1 # Pos.of_nat i) eq_refl),
-    (DDcut_limit upcut (1 # Pos.of_nat j) eq_refl); unfold proj1_sig.
+    destruct (DDcut_limit upcut (1 #/ Pos.of_nat i) eq_refl),
+    (DDcut_limit upcut (1 #/ Pos.of_nat j) eq_refl); unfold proj1_sig.
     apply (CRabs_le). split.
     - intros. unfold CRminus.
       rewrite <- CR_of_Q_opp, <- CR_of_Q_opp, <- CR_of_Q_plus.
       apply CR_of_Q_le.
       apply (Qplus_le_l _ _ x0). ring_simplify.
-      setoid_replace (-1 * (1 # p) + x0)%Q with (x0 - (1 # p))%Q.
-      2: ring. apply (Qle_trans _ (x0- (1#Pos.of_nat j))).
+      setoid_replace (-1 * (1 #/ p) + x0)%Q with (x0 - (1 #/ p))%Q.
+      2: ring. apply (Qle_trans _ (x0- (1#/Pos.of_nat j))).
       + apply Qplus_le_r. apply H.
         apply Z2Nat.inj_le.
         * discriminate.
@@ -277,9 +277,9 @@ Proof.
         * apply a0.
     - unfold CRminus. rewrite <- CR_of_Q_opp, <- CR_of_Q_plus.
       apply CR_of_Q_le.
-      apply (Qplus_le_l _ _ (x0-(1#p))). ring_simplify.
-      setoid_replace (x -1 * (1 # p))%Q with (x - (1 # p))%Q.
-      2: ring. apply (Qle_trans _ (x- (1#Pos.of_nat i))).
+      apply (Qplus_le_l _ _ (x0-(1#/p))). ring_simplify.
+      setoid_replace (x -1 * (1 #/ p))%Q with (x - (1 #/ p))%Q.
+      2: ring. apply (Qle_trans _ (x- (1#/Pos.of_nat i))).
       + apply Qplus_le_r. apply H.
         apply Z2Nat.inj_le.
         * discriminate.
@@ -299,7 +299,7 @@ Proof.
     destruct (CR_cv_open_above _ (CR_of_Q R r) l lcv H0) as [p pmaj].
     specialize (pmaj p (Nat.le_refl p)).
     unfold proj1_sig in pmaj.
-    destruct (DDcut_limit upcut (1 # Pos.of_nat p) eq_refl) as [q qmaj].
+    destruct (DDcut_limit upcut (1 #/ Pos.of_nat p) eq_refl) as [q qmaj].
     apply (DDinterval upcut q). 2: apply qmaj.
     destruct (Q_dec q r).
     + destruct s.
@@ -307,15 +307,15 @@ Proof.
       * exfalso. apply (CR_of_Q_lt R) in q0. exact (CRlt_asym _ _ pmaj q0).
     + rewrite q0. apply Qle_refl.
    - intros H0 abs.
-    assert ((CR_of_Q R r+l) * CR_of_Q R (1#2) < l).
+    assert ((CR_of_Q R r+l) * CR_of_Q R (1#/2) < l).
     { apply (CRmult_lt_reg_r (CR_of_Q R 2)).
       - apply CR_of_Q_pos. reflexivity.
       - rewrite CRmult_assoc, <- CR_of_Q_mult, (CR_of_Q_plus R 1 1).
-        setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+        setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
         rewrite CRmult_plus_distr_l, CRmult_1_r, CRmult_1_r.
         apply CRplus_lt_compat_r. exact H0. }
     destruct (CR_cv_open_below _ _ l lcv H1) as [p pmaj].
-    assert (0 < (l-CR_of_Q R r) * CR_of_Q R (1#2)).
+    assert (0 < (l-CR_of_Q R r) * CR_of_Q R (1#/2)).
     { apply CRmult_lt_0_compat.
       - rewrite <- (CRplus_opp_r (CR_of_Q R r)).
         apply CRplus_lt_compat_r. exact H0.
@@ -326,36 +326,36 @@ Proof.
        exact (CRlt_asym _ _ imaj (CRinv_0_lt_compat R _ (inr H2) H2)).
      + specialize (pmaj (max (S i) (S p)) (Nat.le_trans p (S p) _ (le_S p p (Nat.le_refl p)) (Nat.le_max_r (S i) (S p)))).
        unfold proj1_sig in pmaj.
-       destruct (DDcut_limit upcut (1 # Pos.of_nat (max (S i) (S p))) eq_refl)
+       destruct (DDcut_limit upcut (1 #/ Pos.of_nat (max (S i) (S p))) eq_refl)
          as [q qmaj].
        destruct qmaj. apply H4. clear H4.
        apply (DDinterval upcut r). 2: exact abs.
-       apply (Qplus_le_l _ _ (1 # Pos.of_nat (Init.Nat.max (S i) (S p)))).
-       ring_simplify. apply (Qle_trans _ (r + (1 # Pos.of_nat (S i)))).
+       apply (Qplus_le_l _ _ (1 #/ Pos.of_nat (Init.Nat.max (S i) (S p)))).
+       ring_simplify. apply (Qle_trans _ (r + (1 #/ Pos.of_nat (S i)))).
        * rewrite Qplus_le_r. unfold Qle,Qnum,Qden.
          rewrite Z.mul_1_l, Z.mul_1_l. apply Pos2Z.pos_le_pos.
          apply Pos2Nat.inj_le. rewrite Nat2Pos.id, Nat2Pos.id.
          -- apply Nat.le_max_l.
          -- discriminate.
          -- discriminate.
-       * apply (CRmult_lt_compat_l ((l - CR_of_Q R r) * CR_of_Q R (1 # 2))) in imaj.
+       * apply (CRmult_lt_compat_l ((l - CR_of_Q R r) * CR_of_Q R (1 #/ 2))) in imaj.
          2: exact H2.
          rewrite CRinv_r in imaj.
-         destruct (Q_dec (r+(1#Pos.of_nat (S i))) q);[|rewrite q0; apply Qle_refl].
+         destruct (Q_dec (r+(1#/Pos.of_nat (S i))) q);[|rewrite q0; apply Qle_refl].
          destruct s.
          { apply Qlt_le_weak, q0. }
          exfalso. apply (CR_of_Q_lt R) in q0.
          apply (CRlt_asym _ _ pmaj). apply (CRlt_le_trans _ _ _ q0).
          apply (CRplus_le_reg_l (-CR_of_Q R r)).
          rewrite CR_of_Q_plus, <- CRplus_assoc, CRplus_opp_l, CRplus_0_l.
-         apply (CRmult_lt_compat_r (CR_of_Q R (1 # Pos.of_nat (S i)))) in imaj.
+         apply (CRmult_lt_compat_r (CR_of_Q R (1 #/ Pos.of_nat (S i)))) in imaj.
          -- rewrite CRmult_1_l in imaj.
             apply (CRle_trans _ (
-                             (l - CR_of_Q R r) * CR_of_Q R (1 # 2) * CR_of_Q R (Z.of_nat (S i) # 1) *
-                               CR_of_Q R (1 # Pos.of_nat (S i)))).
+                             (l - CR_of_Q R r) * CR_of_Q R (1 #/ 2) * CR_of_Q R (Z.of_nat (S i) #/ 1) *
+                               CR_of_Q R (1 #/ Pos.of_nat (S i)))).
             ++ apply CRlt_asym, imaj.
             ++ rewrite CRmult_assoc, <- CR_of_Q_mult.
-               setoid_replace ((Z.of_nat (S i) # 1) * (1 # Pos.of_nat (S i)))%Q with 1%Q.
+               setoid_replace ((Z.of_nat (S i) #/ 1) * (1 #/ Pos.of_nat (S i)))%Q with 1%Q.
                ** rewrite CRmult_1_r.
                   unfold CRminus. rewrite CRmult_plus_distr_r, (CRplus_comm (-CR_of_Q R r)).
                   rewrite (CRplus_comm (CR_of_Q R r)), CRmult_plus_distr_r.
@@ -390,16 +390,16 @@ Proof.
   { intros. intros x Ex. specialize (H1 x Ex). intro abs.
     apply H1. apply (CRle_lt_trans _ (CR_of_Q R r)). 2: exact abs.
     apply CR_of_Q_le. exact H0. }
-  assert (upcut (Z.of_nat a # 1)%Q).
+  assert (upcut (Z.of_nat a #/ 1)%Q).
   { intros x Ex. exact (luba x Ex). }
-  assert (~upcut (- Z.of_nat b # 1)%Q).
+  assert (~upcut (- Z.of_nat b #/ 1)%Q).
   { intros abs. apply glbb. intros x Ex.
     specialize (abs x Ex). rewrite <- CR_of_Q_opp.
     exact abs. }
   assert (forall q r : Q, (q == r)%Q -> upcut q -> upcut r).
   { intros. intros x Ex. specialize (H4 x Ex). rewrite <- H3. exact H4. }
   destruct (@glb_dec_Q R (Build_DedekindDecCut
-                            upcut H3 (-Z.of_nat b # 1)%Q (Z.of_nat a # 1)
+                            upcut H3 (-Z.of_nat b #/ 1)%Q (Z.of_nat a #/ 1)
                             H H0 H1 H2)).
   simpl in a0. exists x. intro r. split.
   - intros. apply a0. exact H4.

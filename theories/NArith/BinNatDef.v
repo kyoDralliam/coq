@@ -40,7 +40,7 @@ Definition two := 2.
 Definition succ_double x :=
   match x with
   | 0 => 1
-  | pos p => pos p~1
+  | pos p => pos p~.1
   end.
 
 (** ** Operation [x -> 2*x] *)
@@ -48,7 +48,7 @@ Definition succ_double x :=
 Definition double n :=
   match n with
   | 0 => 0
-  | pos p => pos p~0
+  | pos p => pos p~.0
   end.
 
 (** ** Successor *)
@@ -161,8 +161,8 @@ Definition div2 n :=
   match n with
   | 0 => 0
   | 1 => 0
-  | pos (p~0) => pos p
-  | pos (p~1) => pos p
+  | pos (p~.0) => pos p
+  | pos (p~.1) => pos p
   end.
 
 (** Parity *)
@@ -201,8 +201,8 @@ Definition log2 n :=
  match n with
    | 0 => 0
    | 1 => 0
-   | pos (p~0) => pos (Pos.size p)
-   | pos (p~1) => pos (Pos.size p)
+   | pos (p~.0) => pos (Pos.size p)
+   | pos (p~.1) => pos (Pos.size p)
  end.
 
 (** How many digits in a number ?

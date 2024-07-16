@@ -179,7 +179,7 @@ Proof.
 Qed.
 
 Lemma CReal_abs_appart_0 : forall x : CReal,
-    0 < CReal_abs x -> x # 0.
+    0 < CReal_abs x -> x #/ 0.
 Proof.
   intros x [n nmaj].
   unfold CReal_abs, CReal_abs_seq, CReal_abs_scale in nmaj;
@@ -330,8 +330,8 @@ Lemma CReal_abs_mult : forall x y : CReal,
     CReal_abs (x * y) == CReal_abs x * CReal_abs y.
 Proof.
   assert (forall x y : CReal,
-             x # 0
-             -> y # 0
+             x #/ 0
+             -> y #/ 0
              -> CReal_abs (x * y) == CReal_abs x * CReal_abs y) as prep.
   { intros. destruct H, H0.
     - rewrite CReal_abs_right, CReal_abs_left, CReal_abs_left.
@@ -433,10 +433,10 @@ Qed.
 (* Min and max *)
 
 Definition CReal_min (x y : CReal) : CReal
-  := (x + y - CReal_abs (y - x)) * inject_Q (1#2).
+  := (x + y - CReal_abs (y - x)) * inject_Q (1#/2).
 
 Definition CReal_max (x y : CReal) : CReal
-  := (x + y + CReal_abs (y - x)) * inject_Q (1#2).
+  := (x + y + CReal_abs (y - x)) * inject_Q (1#/2).
 
 Add Parametric Morphism : CReal_min
     with signature CRealEq ==> CRealEq ==> CRealEq
@@ -466,7 +466,7 @@ Proof.
   apply (CReal_mult_le_reg_r 2).
   - apply inject_Q_lt; reflexivity.
   - rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r.
     apply (CReal_plus_le_reg_l (-x-y)). ring_simplify.
     apply CReal_abs_le. split.
@@ -492,7 +492,7 @@ Proof.
   apply (CReal_mult_le_reg_r 2).
   - apply inject_Q_lt; reflexivity.
   - rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r.
     apply (CReal_plus_le_reg_l (CReal_abs(y-x) - (z*2))). ring_simplify.
     apply CReal_abs_le. split.
@@ -518,7 +518,7 @@ Proof.
   apply (CReal_mult_le_reg_r 2).
   - apply inject_Q_lt; reflexivity.
   - rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r.
     rewrite CReal_mult_comm, CReal_double.
     rewrite CReal_plus_assoc. apply CReal_plus_le_compat_l.
@@ -534,7 +534,7 @@ Proof.
   apply (CReal_mult_le_reg_r 2).
   - apply inject_Q_lt; reflexivity.
   - rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r.
     rewrite CReal_mult_comm, CReal_double.
     rewrite (CReal_plus_comm x).
@@ -550,7 +550,7 @@ Proof.
   apply (CReal_mult_le_reg_r 2).
   - apply inject_Q_lt; reflexivity.
   - rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r.
     rewrite CReal_mult_comm, CReal_double.
     unfold CReal_minus.
@@ -565,7 +565,7 @@ Proof.
   apply (CReal_mult_le_reg_r 2).
   - apply inject_Q_lt; reflexivity.
   - rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r.
     rewrite CReal_mult_comm, CReal_double.
     unfold CReal_minus. rewrite (CReal_plus_comm x).
@@ -581,7 +581,7 @@ Proof.
   intros. unfold CReal_min.
   apply (CReal_mult_eq_reg_r 2). 2: right; apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_comm, CReal_double.
   rewrite CReal_abs_right.
@@ -597,7 +597,7 @@ Proof.
   intros. unfold CReal_min.
   apply (CReal_mult_eq_reg_r 2). 2: right; apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_comm, CReal_double.
   rewrite CReal_abs_left.
@@ -613,7 +613,7 @@ Proof.
   intros. unfold CReal_max.
   apply (CReal_mult_eq_reg_r 2). 2: right; apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_comm, CReal_double.
   rewrite CReal_abs_left.
@@ -629,7 +629,7 @@ Proof.
   intros. unfold CReal_max.
   apply (CReal_mult_eq_reg_r 2). 2: right; apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_comm, CReal_double.
   rewrite CReal_abs_right.
@@ -645,14 +645,14 @@ Proof.
   intros. unfold CReal_min. unfold CReal_min in H.
   apply (CReal_mult_eq_reg_r 2). 2: right; apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_comm, CReal_double.
   rewrite CReal_abs_right.
   { ring. }
   apply (CReal_mult_lt_compat_r 2) in H. 2: apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_assoc, <- inject_Q_mult in H.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q in H. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q in H. 2: reflexivity.
   rewrite CReal_mult_1_r in H.
   rewrite CReal_mult_comm, CReal_double in H.
   intro abs. rewrite CReal_abs_left in H.
@@ -664,13 +664,13 @@ Proof.
 Qed.
 
 Lemma posPartAbsMax : forall x : CReal,
-    CReal_max 0 x == (x + CReal_abs x) * (inject_Q (1#2)).
+    CReal_max 0 x == (x + CReal_abs x) * (inject_Q (1#/2)).
 Proof.
   split.
   - intro abs. apply (CReal_mult_lt_compat_r 2) in abs.
     2: apply (inject_Q_lt 0 2); reflexivity.
     rewrite CReal_mult_assoc, <- (inject_Q_mult) in abs.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q in abs. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q in abs. 2: reflexivity.
     rewrite CReal_mult_1_r in abs.
     apply (CReal_plus_lt_compat_l (-x)) in abs.
     rewrite <- CReal_plus_assoc, CReal_plus_opp_l, CReal_plus_0_l in abs.
@@ -688,8 +688,8 @@ Proof.
       rewrite (inject_Q_plus 1 1), CReal_mult_plus_distr_l, CReal_mult_1_r.
       apply CReal_plus_le_compat; apply CReal_max_r.
   - apply CReal_max_lub.
-    + rewrite <- (CReal_mult_0_l (inject_Q (1#2))).
-      do 2 rewrite <- (CReal_mult_comm (inject_Q (1#2))).
+    + rewrite <- (CReal_mult_0_l (inject_Q (1#/2))).
+      do 2 rewrite <- (CReal_mult_comm (inject_Q (1#/2))).
       apply CReal_mult_le_compat_l_half.
       * apply inject_Q_lt; reflexivity.
       * rewrite <- (CReal_plus_opp_r x). apply CReal_plus_le_compat_l.
@@ -697,20 +697,20 @@ Proof.
     + intros abs.
       apply (CReal_mult_lt_compat_r 2) in abs. 2: apply inject_Q_lt; reflexivity.
       rewrite CReal_mult_assoc, <- inject_Q_mult in abs.
-      setoid_replace ((1 # 2) * 2)%Q with 1%Q in abs. 2: reflexivity.
+      setoid_replace ((1 #/ 2) * 2)%Q with 1%Q in abs. 2: reflexivity.
       rewrite CReal_mult_1_r, (inject_Q_plus 1 1), CReal_mult_plus_distr_l, CReal_mult_1_r in abs.
       apply CReal_plus_lt_reg_l in abs.
       exact (CReal_le_abs x abs).
 Qed.
 
 Lemma negPartAbsMin : forall x : CReal,
-    CReal_min 0 x == (x - CReal_abs x) * (inject_Q (1#2)).
+    CReal_min 0 x == (x - CReal_abs x) * (inject_Q (1#/2)).
 Proof.
   split.
   - intro abs. apply (CReal_mult_lt_compat_r 2) in abs.
     2: apply (inject_Q_lt 0 2); reflexivity.
     rewrite CReal_mult_assoc, <- (inject_Q_mult) in abs.
-    setoid_replace ((1 # 2) * 2)%Q with 1%Q in abs. 2: reflexivity.
+    setoid_replace ((1 #/ 2) * 2)%Q with 1%Q in abs. 2: reflexivity.
     rewrite CReal_mult_1_r in abs.
     apply (CReal_plus_lt_compat_r (CReal_abs x)) in abs.
     unfold CReal_minus in abs.
@@ -728,7 +728,7 @@ Proof.
       exact (CRealLt_asym _ _ c c).
     + apply inject_Q_lt; reflexivity.
   - intro abs.
-    assert ((x - CReal_abs x) * inject_Q (1 # 2) < 0 * inject_Q (1 # 2)).
+    assert ((x - CReal_abs x) * inject_Q (1 #/ 2) < 0 * inject_Q (1 #/ 2)).
     { rewrite CReal_mult_0_l.
       apply (CReal_lt_le_trans _ _ _ abs). apply CReal_min_l. }
     apply CReal_mult_lt_reg_r in H.
@@ -739,7 +739,7 @@ Proof.
     + unfold CReal_minus in abs.
       rewrite CReal_opp_involutive, <- CReal_double, CReal_mult_comm in abs.
       rewrite <- CReal_mult_assoc, <- inject_Q_mult in abs.
-      setoid_replace ((1 # 2) * 2)%Q with 1%Q in abs.
+      setoid_replace ((1 #/ 2) * 2)%Q with 1%Q in abs.
       * rewrite CReal_mult_1_l in abs. exact (CRealLt_asym _ _ abs abs).
       * reflexivity.
     + rewrite <- CReal_opp_0.
@@ -781,10 +781,10 @@ Proof.
   apply (CReal_mult_eq_reg_r 2). 2: right; apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_plus_distr_r.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_comm, CReal_double. ring.
 Qed.
@@ -798,10 +798,10 @@ Proof.
   apply (CReal_mult_eq_reg_r 2). 2: right; apply inject_Q_lt; reflexivity.
   rewrite CReal_mult_plus_distr_r.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   rewrite CReal_mult_comm, CReal_double. ring.
 Qed.
@@ -812,7 +812,7 @@ Proof.
   intros. unfold CReal_min.
   apply (CReal_mult_lt_reg_r 2). { apply inject_Q_lt; reflexivity. }
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   apply (CReal_plus_lt_reg_l (CReal_abs (y - x) - (z*2))).
   ring_simplify. apply Rabs_def1.
@@ -898,7 +898,7 @@ Proof.
   intros. unfold CReal_max.
   apply (CReal_mult_lt_reg_r 2). { apply inject_Q_lt; reflexivity. }
   rewrite CReal_mult_assoc, <- inject_Q_mult.
-  setoid_replace ((1 # 2) * 2)%Q with 1%Q. 2: reflexivity.
+  setoid_replace ((1 #/ 2) * 2)%Q with 1%Q. 2: reflexivity.
   rewrite CReal_mult_1_r.
   apply (CReal_plus_lt_reg_l (-x -y)). ring_simplify.
   apply Rabs_def1.
@@ -925,13 +925,13 @@ Lemma CReal_max_contract : forall x y a : CReal,
 Proof.
   intros. unfold CReal_max.
   rewrite (CReal_abs_morph
-             _ ((x - y + (CReal_abs (a - x) - CReal_abs (a - y))) * inject_Q (1 # 2))).
+             _ ((x - y + (CReal_abs (a - x) - CReal_abs (a - y))) * inject_Q (1 #/ 2))).
   2: ring.
-  rewrite CReal_abs_mult, (CReal_abs_right (inject_Q (1 # 2))).
+  rewrite CReal_abs_mult, (CReal_abs_right (inject_Q (1 #/ 2))).
   2: apply inject_Q_le; discriminate.
   apply (CReal_le_trans
            _ ((CReal_abs (x - y) * 1 + CReal_abs (x-y) * 1)
-              * inject_Q (1 # 2))).
+              * inject_Q (1 #/ 2))).
   - apply CReal_mult_le_compat_r.
     + apply inject_Q_le. discriminate.
     + apply (CReal_le_trans _ (CReal_abs (x - y) + CReal_abs (CReal_abs (a - x) - CReal_abs (a - y)))).
@@ -947,7 +947,7 @@ Proof.
            reflexivity.
   - rewrite <- CReal_mult_plus_distr_l, <- inject_Q_plus.
     rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 + 1) * (1 # 2))%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 + 1) * (1 #/ 2))%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r. apply CRealLe_refl.
 Qed.
 
@@ -957,13 +957,13 @@ Lemma CReal_min_contract : forall x y a : CReal,
 Proof.
   intros. unfold CReal_min.
   rewrite (CReal_abs_morph
-             _ ((x - y + (CReal_abs (a - y) - CReal_abs (a - x))) * inject_Q (1 # 2))).
+             _ ((x - y + (CReal_abs (a - y) - CReal_abs (a - x))) * inject_Q (1 #/ 2))).
   2: ring.
-  rewrite CReal_abs_mult, (CReal_abs_right (inject_Q (1 # 2))).
+  rewrite CReal_abs_mult, (CReal_abs_right (inject_Q (1 #/ 2))).
   2: apply inject_Q_le; discriminate.
   apply (CReal_le_trans
            _ ((CReal_abs (x - y) * 1 + CReal_abs (x-y) * 1)
-              * inject_Q (1 # 2))).
+              * inject_Q (1 #/ 2))).
   - apply CReal_mult_le_compat_r.
     + apply inject_Q_le. discriminate.
     + apply (CReal_le_trans _ (CReal_abs (x - y) + CReal_abs (CReal_abs (a - y) - CReal_abs (a - x)))).
@@ -978,6 +978,6 @@ Proof.
            reflexivity.
   - rewrite <- CReal_mult_plus_distr_l, <- inject_Q_plus.
     rewrite CReal_mult_assoc, <- inject_Q_mult.
-    setoid_replace ((1 + 1) * (1 # 2))%Q with 1%Q. 2: reflexivity.
+    setoid_replace ((1 + 1) * (1 #/ 2))%Q with 1%Q. 2: reflexivity.
     rewrite CReal_mult_1_r. apply CRealLe_refl.
 Qed.

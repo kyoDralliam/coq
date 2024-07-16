@@ -102,7 +102,7 @@ Qed.
 (** ** Qpower_positive decomposition *)
 
 Lemma Qpower_decomp_positive p x y :
-  Qpower_positive (x#y) p = x ^ Zpos p # (y ^ p).
+  Qpower_positive (x#/y) p = x ^ Zpos p #/ (y ^ p).
 Proof.
 induction p; intros; simpl Qpower_positive; rewrite ?IHp.
 - (* xI *)
@@ -287,7 +287,7 @@ rewrite Qinv_power.
 reflexivity.
 Qed.
 
-Lemma Qinv_power_n : forall n p, (1#p)^n == /(inject_Z (Zpos p))^n.
+Lemma Qinv_power_n : forall n p, (1#/p)^n == /(inject_Z (Zpos p))^n.
 Proof.
 intros n p.
 rewrite Qmake_Qdiv.
@@ -315,7 +315,7 @@ Proof.
 Qed.
 
 Lemma Qpower_minus_pos: forall (a b : positive) (n m : Z),
-  (Z.pos a#b) ^ (n - m) == (Z.pos a#b) ^ n * (Z.pos b#a) ^ m.
+  (Z.pos a#/b) ^ (n - m) == (Z.pos a#/b) ^ n * (Z.pos b#/a) ^ m.
 Proof.
   intros a b n m.
   rewrite Qpower_minus by discriminate.
@@ -324,7 +324,7 @@ Proof.
 Qed.
 
 Lemma Qpower_minus_neg: forall (a b : positive) (n m : Z),
-  (Z.neg a#b) ^ (n - m) == (Z.neg a#b) ^ n * (Z.neg b#a) ^ m.
+  (Z.neg a#/b) ^ (n - m) == (Z.neg a#/b) ^ n * (Z.neg b#/a) ^ m.
 Proof.
   intros a b n m.
   rewrite Qpower_minus by discriminate.
@@ -347,7 +347,7 @@ Qed.
 (** ** Qpower decomposition *)
 
 Lemma Qpower_decomp_pos: forall (p : positive) (a : Z) (b : positive),
-  (a # b) ^ (Z.pos p) == a ^ (Z.pos p) # (b ^ p)%positive.
+  (a #/ b) ^ (Z.pos p) == a ^ (Z.pos p) #/ (b ^ p)%positive.
 Proof.
   intros p a b.
   pose proof Qpower_decomp_positive p a b.
@@ -355,7 +355,7 @@ Proof.
 Qed.
 
 Lemma Qpower_decomp_neg_pos: forall (p a b: positive),
-  (Z.pos a # b) ^ (Z.neg p) == (Z.pos b) ^ (Z.pos p) # (a ^ p)%positive.
+  (Z.pos a #/ b) ^ (Z.neg p) == (Z.pos b) ^ (Z.pos p) #/ (a ^ p)%positive.
 Proof.
   intros p a b.
   cbn.
@@ -365,7 +365,7 @@ Proof.
 Qed.
 
 Lemma Qpower_decomp_neg_neg: forall (p a b: positive),
-  (Z.neg a # b) ^ (Z.neg p) == (Z.neg b) ^ (Z.pos p) # (a ^ p)%positive.
+  (Z.neg a #/ b) ^ (Z.neg p) == (Z.neg b) ^ (Z.pos p) #/ (a ^ p)%positive.
 Proof.
   intros p a b.
   cbn.
@@ -463,7 +463,7 @@ Qed.
 (** ** Power of 2 positive upper bound *)
 
 Lemma Qarchimedean_power2_pos : forall q : Q,
-  {p : positive | (q < Z.pos (2^p) # 1)%Q}.
+  {p : positive | (q < Z.pos (2^p) #/ 1)%Q}.
 Proof.
   intros q.
   destruct (Qarchimedean q) as [pexp Hpexp].
