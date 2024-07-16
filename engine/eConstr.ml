@@ -46,6 +46,8 @@ module ESorts = struct
   let super sigma s =
     make (Sorts.super (kind sigma s))
 
+  let univ_of_sort sigma s = Sorts.univ_of_sort (kind sigma s)
+
   let relevance_of_sort s =
     let r = Sorts.relevance_of_sort (unsafe_to_sorts s) in
     ERelevance.make r

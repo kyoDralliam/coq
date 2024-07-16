@@ -63,6 +63,8 @@ sig
 
   val super : Evd.evar_map -> t -> t
 
+  val univ_of_sort : Evd.evar_map -> t -> Univ.Universe.t
+
   val relevance_of_sort : t -> ERelevance.t
 
   val family : Evd.evar_map -> t -> Sorts.family

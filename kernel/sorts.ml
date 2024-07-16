@@ -285,6 +285,11 @@ let qsort q u = QSort (q, u)
 let sort_of_univ u =
   if Universe.is_type0 u then set else Type u
 
+let univ_of_sort = function
+  | SProp | Prop | Set -> Universe.type0
+  | Type u -> u
+  | QSort (_, u) -> u
+
 let make q u =
   let open Quality in
   match q with

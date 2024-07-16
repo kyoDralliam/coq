@@ -303,12 +303,12 @@ let universe_of_sort env sigma s =
                       (Hint: if your inductive definition is a sub-singleton, Coq might put it in Prop without telling you)")
   else if EConstr.ESorts.is_sprop sigma s then
     sigma, (Univ.Universe.type0, EConstr.ESorts.sprop)
-  else
-    let sigma, u = Evd.new_univ_level_variable Evd.univ_flexible sigma in
+  else sigma, (EConstr.ESorts.univ_of_sort sigma s, s)
+    (* let sigma, u = Evd.new_univ_level_variable Evd.univ_flexible sigma in
     let univ = Univ.Universe.make u in
     let new_s = EConstr.ESorts.make (Sorts.make Sorts.Quality.qtype univ) in
     let sigma = Evd.set_leq_sort env sigma s new_s in
-    sigma, (univ, new_s)
+    sigma, (univ, new_s) *)
 
 
 (* Adding a universe level strictly greater than u to the evar_map.
@@ -744,18 +744,24 @@ let declare_ctor_cast_rule ?loc ~poly env uinst state ind (ctor, ctor_constr) =
   let id = Names.Id.of_string ("rewrite_" ^ Names.Id.to_string ctor.csi_name) in
 
   (* optional debug *)
-  (* Feedback.msg_debug (strbrk "We are trying to declare the rewrite rule " *)
-  (*                     ++ Termops.Internal.print_constr_env env sigma rew_left *)
-  (*                     ++ fnl () *)
-  (*                     ++ str " ==> " *)
-  (*                     ++ Termops.Internal.print_constr_env env sigma rew_right) ; *)
+  Feedback.msg_debug (strbrk "We are trying to declare the rewrite rule "
+                      ++ Termops.Internal.print_constr_env env sigma rew_left
+                      ++ fnl ()
+                      ++ str " ==> "
+                      ++ Termops.Internal.print_constr_env env sigma rew_right) ;
 
-  (* let ty_left = Retyping.get_type_of env sigma rew_left in *)
-  (* Feedback.msg_debug (str "The left side has type " *)
-  (*                     ++ Termops.Internal.print_constr_env env sigma ty_left) ; *)
-  (* let ty_right = Retyping.get_type_of env sigma rew_right in *)
-  (* Feedback.msg_debug (str "The right side has type " *)
-  (*                     ++ Termops.Internal.print_constr_env env sigma ty_right) ; *)
+  let n1, n2 = UVars.LevelInstance.length uinst in
+  Feedback.msg_debug (strbrk "Binding universe instance : "
+                      ++ int n1 
+                      ++ str ", "
+                      ++ int n2) ;
+
+  let ty_left = Retyping.get_type_of env sigma rew_left in
+  Feedback.msg_debug (str "The left side has type "
+                      ++ Termops.Internal.print_constr_env env sigma ty_left) ;
+  let ty_right = Retyping.get_type_of env sigma rew_right in
+  Feedback.msg_debug (str "The right side has type "
+                      ++ Termops.Internal.print_constr_env env sigma ty_right) ;
 
   let rew = make_rewrite_rule ?loc env sigma uinst (EConstr.Unsafe.to_constr rew_left) rew_right [] in
   Global.add_rewrite_rules id { rewrules_rules = [rew] }
