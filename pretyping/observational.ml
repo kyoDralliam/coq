@@ -297,7 +297,7 @@ let rec evar_subst evmap evd k t =
    we put it inside a universe, and we add an equality constraint to the evar_map.
    Even though s is basically a disguised universe... *)
 
-let universe_of_sort env sigma s =
+let universe_of_sort sigma s =
   if EConstr.ESorts.is_prop sigma s then
     user_err (Pp.str "Prop is not compatible with the observational mode. Use SProp instead.
                       (Hint: if your inductive definition is a sub-singleton, Coq might put it in Prop without telling you)")
@@ -618,6 +618,7 @@ let declare_ctorarg_obs_eq ~poly env u1 name decl (sigma, ctxt, ren1, ren2, cnt)
      let ty1 = e_exliftn (wkn n_args (Esubst.el_liftn n_args ren1)) ty in
      let ty2 = e_exliftn (Esubst.el_liftn n_args (wkn n_args ren2)) ty in
      let sort = get_sort_of_in_context env sigma full_ctxt ty1 in
+     let sigma, (uty, sort) = universe_of_sort sigma sort in
      let is_sprop = EConstr.ESorts.is_sprop sigma sort in
      (* we declare new universe levels u1 and u2 to instantiate the polymorphic obseq constant *)
      (* let sigma, newsort, u1 = univ_level_sup env sigma sort in *)
@@ -627,7 +628,7 @@ let declare_ctorarg_obs_eq ~poly env u1 name decl (sigma, ctxt, ren1, ren2, cnt)
 
      (* TODO: Instead of using the universe level of the constructor argument type, I lazily reuse
         the levels from the inductive type family. I think that cumulativity guarantees it's okay *)
-     let eq_ty = make_obseqU ~is_sprop u1 ty1 ty2 in
+     let eq_ty = make_obseqU ~is_sprop uty ty1 ty2 in
      let axiom = EConstr.it_mkProd_or_LetIn eq_ty full_ctxt in
      let name = Names.Id.of_string (name ^ string_of_int cnt) in
 
@@ -664,7 +665,7 @@ let declare_ctorarg_obs_eq ~poly env u1 name decl (sigma, ctxt, ren1, ren2, cnt)
      (* then we add the new cast term to arg0_ctxt *)
      let ty1 = e_exliftn (wkn (n_args + 1) (Esubst.el_liftn n_args ren1)) ty in
      let ty2 = e_exliftn (Esubst.el_liftn n_args (wkn (n_args + 1) ren2)) ty in
-     let cast_term = make_cast ~is_sprop u1 ty1 ty2 (wk1_tm eq_hyp) (EConstr.mkRel (n_args + 1)) in
+     let cast_term = make_cast ~is_sprop uty ty1 ty2 (wk1_tm eq_hyp) (EConstr.mkRel (n_args + 1)) in
      let arg0_ctxt = (Context.Rel.Declaration.LocalDef (na, cast_term, ty2)) :: arg0_ctxt in
      (sigma, (param_ctxt, arg_ctxt, arg0_ctxt), ren1, ren2, cnt + 1)
   | Context.Rel.Declaration.LocalDef (na, tm, ty) as decl ->
@@ -1002,7 +1003,7 @@ let get_context_univs env sigma local_ctxt ctxt =
   let fold_aux decl (sigma, local_ctxt, univs) =
     let sort = get_sort_of_in_context env sigma local_ctxt
                  (Context.Rel.Declaration.get_type decl) in
-    let sigma, u = universe_of_sort env sigma sort in
+    let sigma, u = universe_of_sort sigma sort in
     (sigma, decl::local_ctxt, u::univs)
   in
   let sigma, _, result = Context.Rel.fold_outside fold_aux ctxt ~init:(sigma, local_ctxt, []) in
@@ -1010,7 +1011,7 @@ let get_context_univs env sigma local_ctxt ctxt =
 
 
 let univ_for_inductive env sigma sort =
-  let sigma, u = universe_of_sort env sigma sort in
+  let sigma, u = universe_of_sort sigma sort in
   (* let s = EConstr.mkSort newsort in *)
   sigma, u
 
