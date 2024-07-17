@@ -73,12 +73,13 @@ Axiom obseq_ind@{u} : forall (A : Type@{u}) (a : A) (P : forall b : A, obseq@{u}
 
 (** Definition of the observational equality on pi's *)
 
-Parameter obseq_forall_1@{u v} : forall {A A' : Type@{u}} {B : A -> Type@{v}} {B' : A' -> Type@{v}},
-    @obseq@{max(u+1,v+1)} Type@{max(u,v)} (forall (x : A), B x) (forall (x : A'), B' x) -> @obseq@{u+1} Type@{u} A' A.
+(* The universe w >= max(u,v) might be strictly greater by cumulativity (e.g. when obtaining the function types by computing something at a higher universe level)*)
+Parameter obseq_forall_1@{u v w} : forall {A A' : Type@{u}} {B : A -> Type@{v}} {B' : A' -> Type@{v}},
+    @obseq@{w+1} Type@{w} (forall (x : A), B x) (forall (x : A'), B' x) -> @obseq@{u+1} Type@{u} A' A.
 
-Parameter obseq_forall_2@{u v} : forall {A A' : Type@{u}} {B : A -> Type@{v}} {B' : A' -> Type@{v}}
-                                        (e : @obseq@{max(u+1,v+1)} Type@{max(u,v)} (forall (x : A), B x) (forall (x : A'), B' x)),
-  forall (x : A'), @obseq@{v+1} Type@{v} (B (obseq_forall_1@{u v} e # x)) (B' x).
+Parameter obseq_forall_2@{u v w} : forall {A A' : Type@{u}} {B : A -> Type@{v}} {B' : A' -> Type@{v}}
+                                        (e : @obseq@{w+1} Type@{w} (forall (x : A), B x) (forall (x : A'), B' x)),
+  forall (x : A'), @obseq@{v+1} Type@{v} (B (obseq_forall_1@{u v w} e # x)) (B' x).
 
 Parameter funext : forall {A B} (f g : forall (x : A), B x), (forall (x : A), f x ~ g x) -> f ~ g.
 
@@ -86,7 +87,7 @@ Rewrite Rule cast_pi :=
 | @{u?} |- cast@{u} (forall (x : ?A), ?B) (forall (x : ?A'), ?B') ?e ?f ?a
    >-> cast ?B@{x := cast ?A' ?A (obseq_forall_1 ?e) ?a}
                              ?B'@{x := ?a}
-                             (obseq_forall_2@{u u} ?e ?a)
+                             (obseq_forall_2@{u u u} ?e ?a)
                              (?f (cast ?A' ?A (obseq_forall_1 ?e) ?a)).
 
 (* Rewrite Rule cast_pi :=
