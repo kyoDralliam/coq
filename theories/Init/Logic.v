@@ -83,11 +83,18 @@ Parameter obseq_forall_2@{u v} : forall {A A' : Type@{u}} {B : A -> Type@{v}} {B
 Parameter funext : forall {A B} (f g : forall (x : A), B x), (forall (x : A), f x ~ g x) -> f ~ g.
 
 Rewrite Rule cast_pi :=
+| @{u?} |- cast@{u} (forall (x : ?A), ?B) (forall (x : ?A'), ?B') ?e ?f ?a
+   >-> cast ?B@{x := cast ?A' ?A (obseq_forall_1 ?e) ?a}
+                             ?B'@{x := ?a}
+                             (obseq_forall_2@{u u} ?e ?a)
+                             (?f (cast ?A' ?A (obseq_forall_1 ?e) ?a)).
+
+(* Rewrite Rule cast_pi :=
 | @{u?} |- cast@{u} (forall (x : ?A), ?B) (forall (x : ?A'), ?B') ?e ?f
    >-> fun (x : ?A') => cast ?B@{x := cast ?A' ?A (obseq_forall_1 ?e) x}
                              ?B'@{x := x}
                              (obseq_forall_2@{u u} ?e x)
-                             (?f (cast ?A' ?A (obseq_forall_1 ?e) x)).
+                             (?f (cast ?A' ?A (obseq_forall_1 ?e) x)). *)
 
 (** Definition of the observational equality on strict propositions *)
 
